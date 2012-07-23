@@ -15,7 +15,6 @@
  */
 package org.springframework.social.openidconnect.api;
 
-
 public class PayPalProfile {
 
 	private String family_name;
@@ -27,6 +26,7 @@ public class PayPalProfile {
 	private String given_name;
 	private String user_id;
 	private Address address;
+	private String password;
 
 	public String getFamily_name() {
 		return family_name;
@@ -98,6 +98,14 @@ public class PayPalProfile {
 
 	public void setUser_id(String user_id) {
 		this.user_id = user_id;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
 	public static class Address {

@@ -47,7 +47,9 @@ public class PayPalTemplate extends AbstractOAuth2ApiBinding implements PayPal {
 
 		ResponseEntity<PayPalProfile> response = getRestTemplate().exchange(buildURI(), HttpMethod.GET, new HttpEntity<byte[]>(headers),
 				PayPalProfile.class);
-		return response.getBody();
+		PayPalProfile payPalProfile = response.getBody();
+		payPalProfile.setPassword(accessToken);
+		return payPalProfile;
 	}
 
 	URI buildURI() {
