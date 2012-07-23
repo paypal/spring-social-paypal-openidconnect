@@ -15,8 +15,11 @@
  */
 package org.springframework.social.openidconnect.api;
 
-public class PayPalProfile {
+import java.io.Serializable;
 
+public class PayPalProfile implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 	private String family_name;
 	private boolean verified;
 	private String locale;
