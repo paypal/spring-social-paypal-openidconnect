@@ -1,18 +1,3 @@
-/*
- * Copyright 2010 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.springframework.social.openidconnect;
 
 import org.springframework.social.ApiException;
@@ -23,40 +8,72 @@ import org.springframework.social.connect.UserProfileBuilder;
 import org.springframework.social.openidconnect.api.PayPal;
 import org.springframework.social.openidconnect.api.PayPalProfile;
 
+/**
+ * <p>
+ * Adapter for PayPal Access. Used for setting connection values and adapting User Profile.
+ * </p>
+ * Note: If you change scope for your application, which essentially means more user information. Then User profile
+ * should be adapted similarly. This profile uses scope 'openid email address'
+ * 
+ * @author BML
+ * 
+ */
 public class PayPalAdapter implements ApiAdapter<PayPal> {
 
-	@Override
-	public UserProfile fetchUserProfile(PayPal paypal) {
-		PayPalProfile profile = paypal.getUserProfile();
-		return new UserProfileBuilder().setUsername(profile.getUser_id()).setEmail(profile.getEmail()).setFirstName(profile.getGiven_name())
-				.setLastName(profile.getFamily_name()).build();
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.springframework.social.connect.ApiAdapter#fetchUserProfile(java.lang.Object)
+     */
+    @Override
+    public UserProfile fetchUserProfile(PayPal paypal) {
+        PayPalProfile profile = paypal.getUserProfile();
+        return new UserProfileBuilder().setUsername(profile.getUser_id()).setEmail(profile.getEmail())
+                .setFirstName(profile.getGiven_name()).setLastName(profile.getFamily_name()).build();
+    }
 
-	@Override
-	public void setConnectionValues(PayPal paypal, ConnectionValues values) {
-		PayPalProfile profile = paypal.getUserProfile();
-		values.setProviderUserId(profile.getUser_id());
-		values.setDisplayName(profile.getName());
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.springframework.social.connect.ApiAdapter#setConnectionValues(java.lang.Object,
+     * org.springframework.social.connect.ConnectionValues)
+     */
+    @Override
+    public void setConnectionValues(PayPal paypal, ConnectionValues values) {
+        PayPalProfile profile = paypal.getUserProfile();
+        values.setProviderUserId(profile.getUser_id());
+        values.setDisplayName(profile.getName());
+    }
 
-	@Override
-	public boolean test(PayPal paypal) {
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.springframework.social.connect.ApiAdapter#test(java.lang.Object)
+     */
+    @Override
+    public boolean test(PayPal paypal) {
 
-		try {
-			PayPalProfile profile = paypal.getUserProfile();
-			if (profile == null || profile.getUser_id() == null)
-				return false;
-		} catch (ApiException e) {
-			return false;
-		}
+        try {
+            PayPalProfile profile = paypal.getUserProfile();
+            if (profile == null || profile.getUser_id() == null) {
+                return false;
+            }
+        } catch (ApiException e) {
+            return false;
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	@Override
-	public void updateStatus(PayPal paypal, String status) {
-		// This is a no-op because PayPal does not support this concept.
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.springframework.social.connect.ApiAdapter#updateStatus(java.lang.Object, java.lang.String)
+     */
+    @Override
+    public void updateStatus(PayPal paypal, String status) {
+        // This is a no-op because PayPal does not support this concept.
 
-	}
+    }
 
 }

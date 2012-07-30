@@ -1,170 +1,185 @@
-/*
- * Copyright 2010 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.springframework.social.openidconnect.api;
 
 import java.io.Serializable;
 
+/**
+ * <p>
+ * Represents the user information given by PayPal access.
+ * </p>
+ * Note: This has to be adapted according to the scope you are providing.
+ * 
+ * @author abprabhakar
+ * 
+ */
 public class PayPalProfile implements Serializable {
 
-	private static final long serialVersionUID = 1L;
-	private String family_name;
-	private boolean verified;
-	private String locale;
-	private String zoneinfo;
-	private String name;
-	private String email;
-	private String given_name;
-	private String user_id;
-	private Address address;
-	private String password;
+    /**
+     * Default serializable version id.
+     */
+    private static final long serialVersionUID = 1L;
 
-	public String getFamily_name() {
-		return family_name;
-	}
+    private String family_name;
 
-	public void setFamily_name(String family_name) {
-		this.family_name = family_name;
-	}
+    private boolean verified;
 
-	public boolean isVerified() {
-		return verified;
-	}
+    private String locale;
 
-	public void setVerified(boolean verified) {
-		this.verified = verified;
-	}
+    private String zoneinfo;
 
-	public String getLocale() {
-		return locale;
-	}
+    private String name;
 
-	public void setLocale(String locale) {
-		this.locale = locale;
-	}
+    private String email;
 
-	public String getZoneinfo() {
-		return zoneinfo;
-	}
+    private String given_name;
 
-	public void setZoneinfo(String zoneinfo) {
-		this.zoneinfo = zoneinfo;
-	}
+    private String user_id;
 
-	public String getName() {
-		return name;
-	}
+    private Address address;
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    private String password;
 
-	public String getEmail() {
-		return email;
-	}
+    public String getFamily_name() {
+        return family_name;
+    }
 
-	public void setEmail(String email) {
-		this.email = email;
-	}
+    public void setFamily_name(String family_name) {
+        this.family_name = family_name;
+    }
 
-	public String getGiven_name() {
-		return given_name;
-	}
+    public boolean isVerified() {
+        return verified;
+    }
 
-	public void setGiven_name(String given_name) {
-		this.given_name = given_name;
-	}
+    public void setVerified(boolean verified) {
+        this.verified = verified;
+    }
 
-	public Address getAddress() {
-		return address;
-	}
+    public String getLocale() {
+        return locale;
+    }
 
-	public void setAddress(Address address) {
-		this.address = address;
-	}
+    public void setLocale(String locale) {
+        this.locale = locale;
+    }
 
-	public String getUser_id() {
-		return user_id;
-	}
+    public String getZoneinfo() {
+        return zoneinfo;
+    }
 
-	public void setUser_id(String user_id) {
-		this.user_id = user_id;
-	}
+    public void setZoneinfo(String zoneinfo) {
+        this.zoneinfo = zoneinfo;
+    }
 
-	public String getPassword() {
-		return password;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setPassword(String password) {
-		this.password = password;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public static class Address {
+    public String getEmail() {
+        return email;
+    }
 
-		private String postal_code;
-		private String locality;
-		private String region;
-		private String country;
-		private String street_address;
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
-		public String getPostal_code() {
-			return postal_code;
-		}
+    public String getGiven_name() {
+        return given_name;
+    }
 
-		public void setPostal_code(String postal_code) {
-			this.postal_code = postal_code;
-		}
+    public void setGiven_name(String given_name) {
+        this.given_name = given_name;
+    }
 
-		public String getLocality() {
-			return locality;
-		}
+    public Address getAddress() {
+        return address;
+    }
 
-		public void setLocality(String locality) {
-			this.locality = locality;
-		}
+    public void setAddress(Address address) {
+        this.address = address;
+    }
 
-		public String getRegion() {
-			return region;
-		}
+    public String getUser_id() {
+        return user_id;
+    }
 
-		public void setRegion(String region) {
-			this.region = region;
-		}
+    public void setUser_id(String user_id) {
+        this.user_id = user_id;
+    }
 
-		public String getCountry() {
-			return country;
-		}
+    public String getPassword() {
+        return password;
+    }
 
-		public void setCountry(String country) {
-			this.country = country;
-		}
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
-		public String getStreet_address() {
-			return street_address;
-		}
+    public static class Address {
 
-		public void setStreet_address(String street_address) {
-			this.street_address = street_address;
-		}
+        private String postal_code;
 
-		@Override
-		public String toString() {
+        private String locality;
 
-			return this.street_address + "  " + this.locality + " " + this.region + " " + this.country + "  " + this.postal_code;
-		}
+        private String region;
 
-	}
+        private String country;
+
+        private String street_address;
+
+        public String getPostal_code() {
+            return postal_code;
+        }
+
+        public void setPostal_code(String postal_code) {
+            this.postal_code = postal_code;
+        }
+
+        public String getLocality() {
+            return locality;
+        }
+
+        public void setLocality(String locality) {
+            this.locality = locality;
+        }
+
+        public String getRegion() {
+            return region;
+        }
+
+        public void setRegion(String region) {
+            this.region = region;
+        }
+
+        public String getCountry() {
+            return country;
+        }
+
+        public void setCountry(String country) {
+            this.country = country;
+        }
+
+        public String getStreet_address() {
+            return street_address;
+        }
+
+        public void setStreet_address(String street_address) {
+            this.street_address = street_address;
+        }
+
+        /*
+         * {@inheritDoc}
+         */
+        @Override
+        public String toString() {
+
+            return this.street_address + "  " + this.locality + " " + this.region + " " + this.country + "  "
+                    + this.postal_code;
+        }
+
+    }
 
 }

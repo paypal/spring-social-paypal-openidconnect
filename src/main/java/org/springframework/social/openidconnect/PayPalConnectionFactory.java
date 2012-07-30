@@ -1,27 +1,25 @@
-/*
- * Copyright 2010 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.springframework.social.openidconnect;
 
 import org.springframework.social.connect.support.OAuth2ConnectionFactory;
 import org.springframework.social.openidconnect.api.PayPal;
 
+/**
+ * Connection Factory implementation for PayPal Access. Uses OAuth2 itself for OpenId as both protocols are pretty much
+ * similar. Both defer in identity layer which we don't care.
+ * 
+ * @author BML
+ * 
+ */
 public class PayPalConnectionFactory extends OAuth2ConnectionFactory<PayPal> {
 
-	public PayPalConnectionFactory(String appId, String appSecret) {
-		super("paypal", new PayPalServiceProvider(appId, appSecret), new PayPalAdapter());
-	}
+    /**
+     * Registers connection as 'paypal'. This key is used for managing connections by spring-social.
+     * 
+     * @param appId - Provided by developer portal when you register your application.
+     * @param appSecret - Provided by developer portal when you register your application.
+     */
+    public PayPalConnectionFactory(String appId, String appSecret) {
+        super("paypal", new PayPalServiceProvider(appId, appSecret), new PayPalAdapter());
+    }
 
 }
