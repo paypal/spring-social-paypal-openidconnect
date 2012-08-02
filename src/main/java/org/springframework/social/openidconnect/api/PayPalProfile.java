@@ -38,6 +38,8 @@ public class PayPalProfile implements Serializable {
 
     private String password;
 
+    private String birthday;
+
     public String getFamily_name() {
         return family_name;
     }
@@ -116,6 +118,14 @@ public class PayPalProfile implements Serializable {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getBirthday() {
+        return birthday;
+    }
+
+    public void setBirthday(String birthday) {
+        this.birthday = birthday;
     }
 
     public static class Address {
