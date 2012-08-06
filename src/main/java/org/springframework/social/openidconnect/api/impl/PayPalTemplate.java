@@ -7,6 +7,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.social.oauth2.AbstractOAuth2ApiBinding;
+import org.springframework.social.openidconnect.PayPalConnectionProperties;
 import org.springframework.social.openidconnect.api.PayPal;
 import org.springframework.social.openidconnect.api.PayPalProfile;
 import org.springframework.social.support.URIBuilder;
@@ -22,11 +23,6 @@ import com.google.gson.JsonParser;
  * 
  */
 public class PayPalTemplate extends AbstractOAuth2ApiBinding implements PayPal {
-
-    /**
-     * User info endpoint as specified by PayPal Access team.
-     */
-    private static final String USERINFO_SERVICE_ENDPOINT = "https://www.paypal.com/webapps/auth/protocol/openidconnect/v1/userinfo";
 
     /**
      * Access token given by PayPal Access.
@@ -137,7 +133,17 @@ public class PayPalTemplate extends AbstractOAuth2ApiBinding implements PayPal {
      * @return - Uri with parameter
      */
     private URI buildURI() {
-        return URIBuilder.fromUri(USERINFO_SERVICE_ENDPOINT).queryParam("schema", "openid").build();
+        return URIBuilder.fromUri(PayPalConnectionProperties.getUserInfoEndpoint()).queryParam("schema", "openid")
+                .build();
+    }
+
+    /**
+     * Sets the access token which is internally used as password.
+     * 
+     * @param accessToken - Token given by token service.
+     */
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
     }
 
 }

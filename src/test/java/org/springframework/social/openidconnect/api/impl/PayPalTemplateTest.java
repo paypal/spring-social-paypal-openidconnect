@@ -27,9 +27,15 @@ public class PayPalTemplateTest {
      * Tests whether a JSON response could be parsed or not.
      * 
      * @throws IOException - If file could not be read.
+     * @throws NoSuchFieldException - If access field is not found
+     * @throws SecurityException - If not accessible
+     * @throws IllegalAccessException - Illegal access to field
+     * @throws IllegalArgumentException - If argument is not valid
      */
     @Test
-    public void testIfResponseCouldBeParsed() throws IOException {
+    public void testIfResponseCouldBeParsed() throws IOException, SecurityException, NoSuchFieldException,
+            IllegalArgumentException, IllegalAccessException {
+        template.setAccessToken("test");
         InputStream stream = getClass().getResourceAsStream("/paypal-api-openidconnect-response.json");
         BufferedReader br = new BufferedReader(new InputStreamReader(stream));
         StringBuilder sb = new StringBuilder();
@@ -39,7 +45,6 @@ public class PayPalTemplateTest {
             sb.append(line);
         }
         br.close();
-        System.out.println(sb.toString());
         PayPalProfile userProfile = template.extractUserProfile(sb.toString());
         Assert.assertEquals("Prabhakar", userProfile.getFamily_name());
         Assert.assertEquals("abhijith@hotmail.com", userProfile.getEmail());
