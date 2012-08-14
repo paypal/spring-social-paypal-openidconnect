@@ -16,8 +16,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
 /**
- * Templates which binds provider to spring social API. This template is also
- * used to get {@code PayPalProfile} from userinfo endpoint.
+ * Templates which binds provider to spring social API. This template is also used to get {@code PayPalProfile} from
+ * userinfo endpoint.
  * 
  * @author abprabhakar
  * 
@@ -30,6 +30,11 @@ public class PayPalTemplate extends AbstractOAuth2ApiBinding implements PayPal {
     private String accessToken;
 
     /**
+     * User Info end point.
+     */
+    private String userInfoUrl;
+
+    /**
      * Default constructor.
      */
     public PayPalTemplate() {
@@ -39,10 +44,13 @@ public class PayPalTemplate extends AbstractOAuth2ApiBinding implements PayPal {
      * Constructors which accept acess token
      * 
      * @param accessToken - Access token given by PayPal Access.
+     * 
+     * @param userInfoUrl - User Info endpoint.
      */
-    public PayPalTemplate(String accessToken) {
+    public PayPalTemplate(String accessToken, String userInfoUrl) {
         super(accessToken);
         this.accessToken = accessToken;
+        this.userInfoUrl = userInfoUrl;
     }
 
     /*
@@ -128,13 +136,20 @@ public class PayPalTemplate extends AbstractOAuth2ApiBinding implements PayPal {
     }
 
     /**
-     * Builds uri for user info service endpoint.
+     * Builds uri for user info service endpoint. Default one given by {@linkplain PayPalConnectionProperties} will be
+     * {@code userInfoUrl} if null.
      * 
      * @return - Uri with parameter
      */
     private URI buildURI() {
-        return URIBuilder.fromUri(PayPalConnectionProperties.getUserInfoEndpoint()).queryParam("schema", "openid")
-                .build();
+        URIBuilder uriBuilder;
+        if (userInfoUrl != null) {
+            uriBuilder = URIBuilder.fromUri(this.userInfoUrl);
+        } else {
+            uriBuilder = URIBuilder.fromUri(PayPalConnectionProperties.getUserInfoEndpoint());
+        }
+
+        return uriBuilder.queryParam("schema", "openid").build();
     }
 
     /**
@@ -144,6 +159,15 @@ public class PayPalTemplate extends AbstractOAuth2ApiBinding implements PayPal {
      */
     public void setAccessToken(String accessToken) {
         this.accessToken = accessToken;
+    }
+
+    /**
+     * Sets user info endpoint for this template.
+     * 
+     * @param userInfoUrl - User Info Endpoint
+     */
+    public void setUserInfoUrl(String userInfoUrl) {
+        this.userInfoUrl = userInfoUrl;
     }
 
 }

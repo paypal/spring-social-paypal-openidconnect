@@ -22,4 +22,19 @@ public class PayPalConnectionFactory extends OAuth2ConnectionFactory<PayPal> {
         super("paypal", new PayPalServiceProvider(appId, appSecret), new PayPalAdapter());
     }
 
+    /**
+     * Registers connection as 'paypal'. This key is used for managing connections by spring-social.
+     * 
+     * @param appId - Provided by developer portal when you register your application.
+     * @param appSecret - Provided by developer portal when you register your application.
+     * @param authorizeEndPoint - Autorize endpoint for PayPal Access
+     * @param tokenServiceEndPoint - Token service endpoint
+     * @param userInfoEndPoint - User info end point
+     */
+    public PayPalConnectionFactory(String appId, String appSecret, String authorizeEndPoint,
+            String tokenServiceEndPoint, String userInfoEndPoint) {
+        super("paypal", new PayPalServiceProvider(appId, appSecret, authorizeEndPoint, tokenServiceEndPoint,
+                userInfoEndPoint), new PayPalAdapter());
+    }
+
 }

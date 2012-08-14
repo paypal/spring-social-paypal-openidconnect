@@ -15,23 +15,34 @@ public class PayPalOpenIdConnectOperation extends OAuth2Template {
     /**
      * Sets up Template to connect PayPal Access.
      * 
-     * @param clientId - Provided by developer portal when you register your
-     *            application.
-     * @param clientSecret - Provided by developer portal when you register your
-     *            application.
+     * @param clientId - Provided by developer portal when you register your application.
+     * @param clientSecret - Provided by developer portal when you register your application.
      */
     public PayPalOpenIdConnectOperation(String clientId, String clientSecret) {
         super(clientId, clientSecret, PayPalConnectionProperties.getAuthorizeEndpoint(), PayPalConnectionProperties
                 .getTokenEndpoint());
     }
 
+    /**
+     * Sets up Template to connect PayPal Access using injected authorize endpoint and token endpoint. Use this if you
+     * do not want to use default endpoint values.
+     * 
+     * @param clientId - Provided by developer portal when you register your application.
+     * @param clientSecret - Provided by developer portal when you register your application.
+     * @param authorizeEndPoint - PayPal Access authorize end point.
+     * 
+     * @param tokenEndPoint - PayPal Access token end point.
+     */
+    public PayPalOpenIdConnectOperation(String clientId, String clientSecret, String authorizeEndPoint,
+            String tokenEndPoint) {
+        super(clientId, clientSecret, authorizeEndPoint, tokenEndPoint);
+    }
+
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * org.springframework.social.oauth2.OAuth2Template#buildAuthenticateUrl
-     * (org.springframework.social.oauth2.GrantType ,
-     * org.springframework.social.oauth2.OAuth2Parameters)
+     * @see org.springframework.social.oauth2.OAuth2Template#buildAuthenticateUrl
+     * (org.springframework.social.oauth2.GrantType , org.springframework.social.oauth2.OAuth2Parameters)
      */
     @Override
     public String buildAuthenticateUrl(GrantType grantType, OAuth2Parameters parameters) {
@@ -41,10 +52,8 @@ public class PayPalOpenIdConnectOperation extends OAuth2Template {
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * org.springframework.social.oauth2.OAuth2Template#buildAuthorizeUrl(org
-     * .springframework.social.oauth2.GrantType,
-     * org.springframework.social.oauth2.OAuth2Parameters)
+     * @see org.springframework.social.oauth2.OAuth2Template#buildAuthorizeUrl(org
+     * .springframework.social.oauth2.GrantType, org.springframework.social.oauth2.OAuth2Parameters)
      */
     @Override
     public String buildAuthorizeUrl(GrantType grantType, OAuth2Parameters parameters) {
@@ -56,8 +65,10 @@ public class PayPalOpenIdConnectOperation extends OAuth2Template {
      * 
      * @param parameters - parametes which are included in request
      * @return - Filled up parameters.
+     * 
      */
     private OAuth2Parameters fixedScope(OAuth2Parameters parameters) {
+        // TODO: scope and nonce should also be configurable
         parameters.setScope(PayPalConnectionProperties.getScope());
         parameters.add("nonce", PayPalConnectionProperties.getNonce());
         return parameters;
