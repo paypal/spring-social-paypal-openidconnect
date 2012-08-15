@@ -28,8 +28,8 @@ public class PayPalAdapter implements ApiAdapter<PayPal> {
     @Override
     public UserProfile fetchUserProfile(PayPal paypal) {
         PayPalProfile profile = paypal.getUserProfile();
-        return new UserProfileBuilder().setUsername(profile.getUser_id()).setEmail(profile.getEmail())
-                .setFirstName(profile.getGiven_name()).setLastName(profile.getFamily_name()).build();
+        return new UserProfileBuilder().setUsername(profile.getUserId()).setEmail(profile.getEmail())
+                .setFirstName(profile.getGivenName()).setLastName(profile.getFamilyName()).build();
     }
 
     /*
@@ -41,7 +41,7 @@ public class PayPalAdapter implements ApiAdapter<PayPal> {
     @Override
     public void setConnectionValues(PayPal paypal, ConnectionValues values) {
         PayPalProfile profile = paypal.getUserProfile();
-        values.setProviderUserId(profile.getUser_id());
+        values.setProviderUserId(profile.getUserId());
         values.setDisplayName(profile.getName());
     }
 
@@ -55,7 +55,7 @@ public class PayPalAdapter implements ApiAdapter<PayPal> {
 
         try {
             PayPalProfile profile = paypal.getUserProfile();
-            if (profile == null || profile.getUser_id() == null) {
+            if (profile == null || profile.getUserId() == null) {
                 return false;
             }
         } catch (ApiException e) {

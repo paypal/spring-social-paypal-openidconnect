@@ -18,7 +18,7 @@ public class PayPalProfile implements Serializable {
      */
     private static final long serialVersionUID = 1L;
 
-    private String family_name;
+    private String familyName;
 
     private boolean verified;
 
@@ -30,9 +30,9 @@ public class PayPalProfile implements Serializable {
 
     private String email;
 
-    private String given_name;
+    private String givenName;
 
-    private String user_id;
+    private String userId;
 
     private Address address;
 
@@ -40,12 +40,12 @@ public class PayPalProfile implements Serializable {
 
     private String birthday;
 
-    public String getFamily_name() {
-        return family_name;
+    public String getFamilyName() {
+        return familyName;
     }
 
-    public void setFamily_name(String family_name) {
-        this.family_name = family_name;
+    public void setFamilyName(String familyName) {
+        this.familyName = familyName;
     }
 
     public boolean isVerified() {
@@ -88,12 +88,20 @@ public class PayPalProfile implements Serializable {
         this.email = email;
     }
 
-    public String getGiven_name() {
-        return given_name;
+    public String getGivenName() {
+        return givenName;
     }
 
-    public void setGiven_name(String given_name) {
-        this.given_name = given_name;
+    public void setGivenName(String givenName) {
+        this.givenName = givenName;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public Address getAddress() {
@@ -102,14 +110,6 @@ public class PayPalProfile implements Serializable {
 
     public void setAddress(Address address) {
         this.address = address;
-    }
-
-    public String getUser_id() {
-        return user_id;
-    }
-
-    public void setUser_id(String user_id) {
-        this.user_id = user_id;
     }
 
     public String getPassword() {
@@ -130,7 +130,7 @@ public class PayPalProfile implements Serializable {
 
     public static class Address {
 
-        private String postal_code;
+        private String postalCode;
 
         private String locality;
 
@@ -138,14 +138,14 @@ public class PayPalProfile implements Serializable {
 
         private String country;
 
-        private String street_address;
+        private String streetAddress;
 
         public String getPostal_code() {
-            return postal_code;
+            return postalCode;
         }
 
         public void setPostal_code(String postal_code) {
-            this.postal_code = postal_code;
+            this.postalCode = postal_code;
         }
 
         public String getLocality() {
@@ -172,12 +172,12 @@ public class PayPalProfile implements Serializable {
             this.country = country;
         }
 
-        public String getStreet_address() {
-            return street_address;
+        public String getStreetAddress() {
+            return streetAddress;
         }
 
-        public void setStreet_address(String street_address) {
-            this.street_address = street_address;
+        public void setStreetAddress(String streetAddress) {
+            this.streetAddress = streetAddress;
         }
 
         /*
@@ -186,8 +186,8 @@ public class PayPalProfile implements Serializable {
         @Override
         public String toString() {
 
-            return this.street_address + "  " + this.locality + " " + this.region + " " + this.country + "  "
-                    + this.postal_code;
+            return this.streetAddress + "  " + this.locality + " " + this.region + " " + this.country + "  "
+                    + this.postalCode;
         }
 
     }

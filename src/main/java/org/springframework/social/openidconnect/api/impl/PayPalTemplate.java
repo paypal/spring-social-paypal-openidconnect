@@ -1,6 +1,7 @@
 package org.springframework.social.openidconnect.api.impl;
 
 import java.net.URI;
+import java.util.Map;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -11,9 +12,6 @@ import org.springframework.social.openidconnect.PayPalConnectionProperties;
 import org.springframework.social.openidconnect.api.PayPal;
 import org.springframework.social.openidconnect.api.PayPalProfile;
 import org.springframework.social.support.URIBuilder;
-
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
 
 /**
  * Templates which binds provider to spring social API. This template is also used to get {@code PayPalProfile} from
@@ -63,9 +61,9 @@ public class PayPalTemplate extends AbstractOAuth2ApiBinding implements PayPal {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", this.accessToken);
 
-        ResponseEntity<String> response = getRestTemplate().exchange(buildURI(), HttpMethod.GET,
-                new HttpEntity<byte[]>(headers), String.class);
-        String jsonResponse = response.getBody();
+        ResponseEntity<Map> response = getRestTemplate().exchange(buildURI(), HttpMethod.GET,
+                new HttpEntity<byte[]>(headers), Map.class);
+        Map<String, Object> jsonResponse = response.getBody();
         return extractUserProfile(jsonResponse);
     }
 
@@ -75,59 +73,58 @@ public class PayPalTemplate extends AbstractOAuth2ApiBinding implements PayPal {
      * @param jsonResponse - Json string
      * @return {@link PayPalProfile}
      */
-    public PayPalProfile extractUserProfile(String jsonResponse) {
+    public PayPalProfile extractUserProfile(Map<String, Object> jsonResponse) {
         PayPalProfile profile = new PayPalProfile();
-        JsonElement jsonRoot = new JsonParser().parse(jsonResponse);
-        if (jsonRoot.getAsJsonObject().get("user_id") != null && this.accessToken != null) {
-            profile.setUser_id(jsonRoot.getAsJsonObject().get("user_id").getAsString());
+        if (jsonResponse.get("user_id") != null && this.accessToken != null) {
+            profile.setUserId(jsonResponse.get("user_id").toString());
             profile.setPassword(this.accessToken);
         } else {
             throw new RuntimeException("User Id and password cannot be null");
         }
 
-        if (jsonRoot.getAsJsonObject().get("family_name") != null) {
-            profile.setFamily_name(jsonRoot.getAsJsonObject().get("family_name").getAsString());
+        if (jsonResponse.get("family_name") != null) {
+            profile.setFamilyName(jsonResponse.get("family_name").toString());
         }
-        if (jsonRoot.getAsJsonObject().get("given_name") != null) {
-            profile.setGiven_name(jsonRoot.getAsJsonObject().get("given_name").getAsString());
+        if (jsonResponse.get("given_name") != null) {
+            profile.setGivenName(jsonResponse.get("given_name").toString());
         }
-        if (jsonRoot.getAsJsonObject().get("email") != null) {
-            profile.setEmail(jsonRoot.getAsJsonObject().get("email").getAsString());
+        if (jsonResponse.get("email") != null) {
+            profile.setEmail(jsonResponse.get("email").toString());
         }
-        if (jsonRoot.getAsJsonObject().get("name") != null) {
-            profile.setName(jsonRoot.getAsJsonObject().get("name").getAsString());
+        if (jsonResponse.get("name") != null) {
+            profile.setName(jsonResponse.get("name").toString());
         }
 
-        if (jsonRoot.getAsJsonObject().get("verified") != null) {
-            profile.setVerified(jsonRoot.getAsJsonObject().get("verified").getAsBoolean());
+        if (jsonResponse.get("verified") != null) {
+            profile.setVerified(Boolean.valueOf(jsonResponse.get("verified").toString()));
         }
-        if (jsonRoot.getAsJsonObject().get("locale") != null) {
-            profile.setLocale(jsonRoot.getAsJsonObject().get("locale").getAsString());
+        if (jsonResponse.get("locale") != null) {
+            profile.setLocale(jsonResponse.get("locale").toString());
         }
-        if (jsonRoot.getAsJsonObject().get("zoneinfo") != null) {
-            profile.setZoneinfo(jsonRoot.getAsJsonObject().get("zoneinfo").getAsString());
+        if (jsonResponse.get("zoneinfo") != null) {
+            profile.setZoneinfo(jsonResponse.get("zoneinfo").toString());
         }
-        if (jsonRoot.getAsJsonObject().get("address") != null) {
-            JsonElement address = jsonRoot.getAsJsonObject().get("address").getAsJsonObject();
+        if (jsonResponse.get("address") != null) {
+            Map<String, String> addressMap = (Map<String, String>) jsonResponse.get("address");
             PayPalProfile.Address addr = new PayPalProfile.Address();
-            if (address.getAsJsonObject().get("street_address") != null) {
-                addr.setStreet_address(address.getAsJsonObject().get("street_address").getAsString());
+            if (addressMap.get("street_address") != null) {
+                addr.setStreetAddress(addressMap.get("street_address"));
             }
 
-            if (address.getAsJsonObject().get("region") != null) {
-                addr.setRegion(address.getAsJsonObject().get("region").getAsString());
+            if (addressMap.get("region") != null) {
+                addr.setRegion(addressMap.get("region"));
             }
 
-            if (address.getAsJsonObject().get("locality") != null) {
-                addr.setLocality(address.getAsJsonObject().get("locality").getAsString());
+            if (addressMap.get("locality") != null) {
+                addr.setLocality(addressMap.get("locality"));
             }
 
-            if (address.getAsJsonObject().get("country") != null) {
-                addr.setCountry(address.getAsJsonObject().get("country").getAsString());
+            if (addressMap.get("country") != null) {
+                addr.setCountry(addressMap.get("country"));
             }
 
-            if (address.getAsJsonObject().get("postal_code") != null) {
-                addr.setPostal_code(address.getAsJsonObject().get("postal_code").getAsString());
+            if (addressMap.get("postal_code") != null) {
+                addr.setPostal_code(addressMap.get("postal_code"));
             }
             profile.setAddress(addr);
         }

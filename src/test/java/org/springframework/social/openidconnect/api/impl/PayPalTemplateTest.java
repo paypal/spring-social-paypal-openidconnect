@@ -1,12 +1,12 @@
 package org.springframework.social.openidconnect.api.impl;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.util.Map;
 
 import junit.framework.Assert;
 
+import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
 import org.springframework.social.openidconnect.api.PayPalProfile;
 
@@ -37,16 +37,10 @@ public class PayPalTemplateTest {
             IllegalArgumentException, IllegalAccessException {
         template.setAccessToken("test");
         InputStream stream = getClass().getResourceAsStream("/paypal-api-openidconnect-response.json");
-        BufferedReader br = new BufferedReader(new InputStreamReader(stream));
-        StringBuilder sb = new StringBuilder();
-
-        String line;
-        while ((line = br.readLine()) != null) {
-            sb.append(line);
-        }
-        br.close();
-        PayPalProfile userProfile = template.extractUserProfile(sb.toString());
-        Assert.assertEquals("Prabhakar", userProfile.getFamily_name());
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, Object> jsonMap = mapper.readValue(stream, Map.class);
+        PayPalProfile userProfile = template.extractUserProfile(jsonMap);
+        Assert.assertEquals("Prabhakar", userProfile.getFamilyName());
         Assert.assertEquals("abhijith@hotmail.com", userProfile.getEmail());
     }
 }
