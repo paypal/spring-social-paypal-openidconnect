@@ -22,9 +22,10 @@ public class PayPalServiceProvider extends AbstractOAuth2ServiceProvider<PayPal>
      * 
      * @param appId - Provided by developer portal when you register your application.
      * @param appSecret - Provided by developer portal when you register your application.
+     * @param scope - List with scopes
      */
-    public PayPalServiceProvider(String appId, String appSecret) {
-        super(new PayPalOpenIdConnectOperation(appId, appSecret));
+    public PayPalServiceProvider(String appId, String appSecret, String scope) {
+        super(new PayPalOpenIdConnectOperation(appId, appSecret, scope));
     }
 
     /**
@@ -35,10 +36,11 @@ public class PayPalServiceProvider extends AbstractOAuth2ServiceProvider<PayPal>
      * @param authorizeEndPoint - Autorize endpoint for PayPal Access
      * @param tokenServiceEndPoint - Token service endpoint
      * @param userInfoEndPoint - User info end point
+     * @param scope - List with scopes
      */
-    public PayPalServiceProvider(String appId, String appSecret, String authorizeEndPoint, String tokenServiceEndPoint,
-            String userInfoEndPoint) {
-        super(new PayPalOpenIdConnectOperation(appId, appSecret, authorizeEndPoint, tokenServiceEndPoint));
+    public PayPalServiceProvider(String appId, String appSecret, String scope, String authorizeEndPoint,
+            String tokenServiceEndPoint, String userInfoEndPoint) {
+        super(new PayPalOpenIdConnectOperation(appId, appSecret, scope, authorizeEndPoint, tokenServiceEndPoint));
         this.userInfoUrl = userInfoEndPoint;
     }
 

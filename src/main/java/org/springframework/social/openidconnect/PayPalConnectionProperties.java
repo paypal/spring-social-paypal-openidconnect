@@ -51,8 +51,6 @@ public final class PayPalConnectionProperties {
                 Assert.notNull(PROPS.get("checkidEndpoint"), "Check Id Endpoint should be specified");
                 Assert.notNull(PROPS.get("userinfoEndpoint"), "User Info endpoint should be specified");
                 Assert.notNull(PROPS.get("disconnectEndpoint"), "Disconnect endpoint should be specified");
-                Assert.notNull(PROPS.get("scope"), "Scope should be specified");
-                Assert.notNull(PROPS.get("nonce"), "nonce should be specified");
             } catch (IOException e) {
                 throw new RuntimeException("connection-{env} properties file not found");
             }
@@ -104,21 +102,4 @@ public final class PayPalConnectionProperties {
         return (String) PROPS.get("disconnectEndpoint");
     }
 
-    /**
-     * Gets scope from properties.
-     * 
-     * @return - openid connect protocol scope property
-     */
-    public static String getScope() {
-        return (String) PROPS.get("scope");
-    }
-
-    /**
-     * Gets nonce from properties.
-     * 
-     * @return - openid connect protocol nonce property
-     */
-    public static String getNonce() {
-        return (String) PROPS.get("nonce");
-    }
 }

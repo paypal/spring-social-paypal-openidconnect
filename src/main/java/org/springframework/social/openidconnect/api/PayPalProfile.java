@@ -128,7 +128,9 @@ public class PayPalProfile implements Serializable {
         this.birthday = birthday;
     }
 
-    public static class Address {
+    public static class Address implements Serializable {
+
+        private static final long serialVersionUID = 1L;
 
         private String postalCode;
 

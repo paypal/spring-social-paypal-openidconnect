@@ -1,5 +1,8 @@
 package org.springframework.social.openidconnect;
 
+import java.util.Random;
+
+import org.springframework.security.crypto.codec.Base64;
 import org.springframework.social.oauth2.GrantType;
 import org.springframework.social.oauth2.OAuth2Parameters;
 import org.springframework.social.oauth2.OAuth2Template;
@@ -13,14 +16,21 @@ import org.springframework.social.oauth2.OAuth2Template;
 public class PayPalOpenIdConnectOperation extends OAuth2Template {
 
     /**
+     * Scope to be included in auth request.
+     */
+    private String scope;
+
+    /**
      * Sets up Template to connect PayPal Access.
      * 
      * @param clientId - Provided by developer portal when you register your application.
      * @param clientSecret - Provided by developer portal when you register your application.
+     * @param scope - List with scopes
      */
-    public PayPalOpenIdConnectOperation(String clientId, String clientSecret) {
+    public PayPalOpenIdConnectOperation(String clientId, String clientSecret, String scope) {
         super(clientId, clientSecret, PayPalConnectionProperties.getAuthorizeEndpoint(), PayPalConnectionProperties
                 .getTokenEndpoint());
+        this.scope = scope;
     }
 
     /**
@@ -30,12 +40,13 @@ public class PayPalOpenIdConnectOperation extends OAuth2Template {
      * @param clientId - Provided by developer portal when you register your application.
      * @param clientSecret - Provided by developer portal when you register your application.
      * @param authorizeEndPoint - PayPal Access authorize end point.
-     * 
+     * @param scope - List with scopes
      * @param tokenEndPoint - PayPal Access token end point.
      */
-    public PayPalOpenIdConnectOperation(String clientId, String clientSecret, String authorizeEndPoint,
+    public PayPalOpenIdConnectOperation(String clientId, String clientSecret, String scope, String authorizeEndPoint,
             String tokenEndPoint) {
         super(clientId, clientSecret, authorizeEndPoint, tokenEndPoint);
+        this.scope = scope;
     }
 
     /*
@@ -68,10 +79,22 @@ public class PayPalOpenIdConnectOperation extends OAuth2Template {
      * 
      */
     private OAuth2Parameters fixedScope(OAuth2Parameters parameters) {
-        // TODO: scope and nonce should also be configurable
-        parameters.setScope(PayPalConnectionProperties.getScope());
-        parameters.add("nonce", PayPalConnectionProperties.getNonce());
+        parameters.setScope(scope);
+        parameters.add("nonce", createNonce());
         return parameters;
     }
 
+    /**
+     * Generates a unique nonce for every request. Created this way based on recomendation from PayPal Access team.
+     * 
+     * @return - generated nonce
+     */
+    private String createNonce() {
+        Random random = new Random();
+        int randomInt = random.nextInt();
+        byte[] randomByte = {Integer.valueOf(randomInt).byteValue()};
+        String encodedValue = new String(Base64.encode(randomByte));
+        return (System.currentTimeMillis() + encodedValue);
+
+    }
 }
