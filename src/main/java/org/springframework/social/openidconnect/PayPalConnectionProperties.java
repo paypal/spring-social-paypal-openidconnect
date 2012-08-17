@@ -52,6 +52,7 @@ public final class PayPalConnectionProperties {
                 Assert.notNull(PROPS.get("userinfoEndpoint"), "User Info endpoint should be specified");
                 Assert.notNull(PROPS.get("disconnectEndpoint"), "Disconnect endpoint should be specified");
             } catch (IOException e) {
+                logger.error("properties file not found...you have to override url values.");
                 throw new RuntimeException("connection-{env} properties file not found");
             }
         }

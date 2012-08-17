@@ -3,6 +3,7 @@ package org.springframework.social.openidconnect.api.impl;
 import java.net.URI;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -21,6 +22,11 @@ import org.springframework.social.support.URIBuilder;
  * 
  */
 public class PayPalTemplate extends AbstractOAuth2ApiBinding implements PayPal {
+
+    /**
+     * Logger for PayPalTemplate
+     */
+    private Logger logger = Logger.getLogger(PayPalTemplate.class);
 
     /**
      * Access token given by PayPal Access.
@@ -60,10 +66,15 @@ public class PayPalTemplate extends AbstractOAuth2ApiBinding implements PayPal {
     public PayPalProfile getUserProfile() {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", this.accessToken);
-
         ResponseEntity<Map> response = getRestTemplate().exchange(buildURI(), HttpMethod.GET,
                 new HttpEntity<byte[]>(headers), Map.class);
         Map<String, Object> jsonResponse = response.getBody();
+        if (logger.isDebugEnabled()) {
+            logger.debug("access token  " + accessToken);
+            for (String key : jsonResponse.keySet()) {
+                logger.debug("Key:  " + key + "  Value : " + jsonResponse.get(key));
+            }
+        }
         return extractUserProfile(jsonResponse);
     }
 
@@ -143,6 +154,7 @@ public class PayPalTemplate extends AbstractOAuth2ApiBinding implements PayPal {
         if (userInfoUrl != null) {
             uriBuilder = URIBuilder.fromUri(this.userInfoUrl);
         } else {
+            logger.debug("Using default user info url  " + userInfoUrl);
             uriBuilder = URIBuilder.fromUri(PayPalConnectionProperties.getUserInfoEndpoint());
         }
 

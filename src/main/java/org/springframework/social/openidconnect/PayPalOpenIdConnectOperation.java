@@ -2,10 +2,12 @@ package org.springframework.social.openidconnect;
 
 import java.util.Random;
 
+import org.apache.log4j.Logger;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.social.oauth2.GrantType;
 import org.springframework.social.oauth2.OAuth2Parameters;
 import org.springframework.social.oauth2.OAuth2Template;
+import org.springframework.util.Assert;
 
 /**
  * Implements an OAuth facility for PayPal with the predefined API URLs.
@@ -14,6 +16,11 @@ import org.springframework.social.oauth2.OAuth2Template;
  * 
  */
 public class PayPalOpenIdConnectOperation extends OAuth2Template {
+
+    /**
+     * Logger for {@link PayPalOpenIdConnectOperation}
+     */
+    private Logger logger = Logger.getLogger(PayPalOpenIdConnectOperation.class);
 
     /**
      * Scope to be included in auth request.
@@ -79,13 +86,14 @@ public class PayPalOpenIdConnectOperation extends OAuth2Template {
      * 
      */
     private OAuth2Parameters fixedScope(OAuth2Parameters parameters) {
+        Assert.hasText(scope, "scope cannot be null or empty");
         parameters.setScope(scope);
         parameters.add("nonce", createNonce());
         return parameters;
     }
 
     /**
-     * Generates a unique nonce for every request. Created this way based on recomendation from PayPal Access team.
+     * Generates a unique nonce for every request. Created this way based on recommendation from PayPal Access team.
      * 
      * @return - generated nonce
      */
@@ -94,7 +102,9 @@ public class PayPalOpenIdConnectOperation extends OAuth2Template {
         int randomInt = random.nextInt();
         byte[] randomByte = {Integer.valueOf(randomInt).byteValue()};
         String encodedValue = new String(Base64.encode(randomByte));
-        return (System.currentTimeMillis() + encodedValue);
+        String retValue = (System.currentTimeMillis() + encodedValue);
+        logger.debug("nonce for this request " + retValue);
+        return retValue;
 
     }
 }
