@@ -84,6 +84,7 @@ public class PayPalTemplate extends AbstractOAuth2ApiBinding implements PayPal {
      * @param jsonResponse - Json string
      * @return {@link PayPalProfile}
      */
+    @SuppressWarnings("unchecked")
     public PayPalProfile extractUserProfile(Map<String, Object> jsonResponse) {
         PayPalProfile profile = new PayPalProfile();
         if (jsonResponse.get("user_id") != null && this.accessToken != null) {
@@ -114,6 +115,15 @@ public class PayPalTemplate extends AbstractOAuth2ApiBinding implements PayPal {
         }
         if (jsonResponse.get("zoneinfo") != null) {
             profile.setZoneinfo(jsonResponse.get("zoneinfo").toString());
+        }
+        if (jsonResponse.get("payer_id") != null) {
+            profile.setPayerId(jsonResponse.get("payer_id").toString());
+        }
+        if (jsonResponse.get("account_type") != null) {
+            profile.setAccountType(jsonResponse.get("account_type").toString());
+        }
+        if (jsonResponse.get("language") != null) {
+            profile.setLanguage(jsonResponse.get("language").toString());
         }
         if (jsonResponse.get("address") != null) {
             Map<String, String> addressMap = (Map<String, String>) jsonResponse.get("address");

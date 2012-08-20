@@ -40,6 +40,12 @@ public class PayPalProfile implements Serializable {
 
     private String birthday;
 
+    private String payerId;
+
+    private String accountType;
+
+    private String language;
+
     public String getFamilyName() {
         return familyName;
     }
@@ -192,6 +198,30 @@ public class PayPalProfile implements Serializable {
                     + this.postalCode;
         }
 
+    }
+
+    public String getPayerId() {
+        return payerId;
+    }
+
+    public void setPayerId(String payerId) {
+        this.payerId = payerId;
+    }
+
+    public String getAccountType() {
+        return accountType;
+    }
+
+    public void setAccountType(String accountType) {
+        this.accountType = accountType;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
     }
 
 }
