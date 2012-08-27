@@ -1,7 +1,6 @@
 package org.springframework.social.openidconnect.api.impl;
 
 import java.net.URI;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.springframework.http.HttpEntity;
@@ -66,90 +65,15 @@ public class PayPalTemplate extends AbstractOAuth2ApiBinding implements PayPal {
     public PayPalProfile getUserProfile() {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", this.accessToken);
-        ResponseEntity<Map> response = getRestTemplate().exchange(buildURI(), HttpMethod.GET,
-                new HttpEntity<byte[]>(headers), Map.class);
-        Map<String, Object> jsonResponse = response.getBody();
+        ResponseEntity<PayPalProfile> jsonResponse = getRestTemplate().exchange(buildURI(), HttpMethod.GET,
+                new HttpEntity<byte[]>(headers), PayPalProfile.class);
+        PayPalProfile profile = jsonResponse.getBody();
+        // Password cannot be blank for Spring security. Setting it to access token rather keeping it as "N/A".
+        profile.setPassword(this.accessToken);
         if (logger.isDebugEnabled()) {
             logger.debug("access token  " + accessToken);
-            for (String key : jsonResponse.keySet()) {
-                logger.debug("Key:  " + key + "  Value : " + jsonResponse.get(key));
-            }
+            logger.debug("PayPal Profile receieved  " + profile);
         }
-        return extractUserProfile(jsonResponse);
-    }
-
-    /**
-     * Gets the {@code PayPalProfile} from given Json string.
-     * 
-     * @param jsonResponse - Json string
-     * @return {@link PayPalProfile}
-     */
-    @SuppressWarnings("unchecked")
-    public PayPalProfile extractUserProfile(Map<String, Object> jsonResponse) {
-        PayPalProfile profile = new PayPalProfile();
-        if (jsonResponse.get("user_id") != null && this.accessToken != null) {
-            profile.setUserId(jsonResponse.get("user_id").toString());
-            profile.setPassword(this.accessToken);
-        } else {
-            throw new RuntimeException("User Id and password cannot be null");
-        }
-
-        if (jsonResponse.get("family_name") != null) {
-            profile.setFamilyName(jsonResponse.get("family_name").toString());
-        }
-        if (jsonResponse.get("given_name") != null) {
-            profile.setGivenName(jsonResponse.get("given_name").toString());
-        }
-        if (jsonResponse.get("email") != null) {
-            profile.setEmail(jsonResponse.get("email").toString());
-        }
-        if (jsonResponse.get("name") != null) {
-            profile.setName(jsonResponse.get("name").toString());
-        }
-
-        if (jsonResponse.get("verified") != null) {
-            profile.setVerified(Boolean.valueOf(jsonResponse.get("verified").toString()));
-        }
-        if (jsonResponse.get("locale") != null) {
-            profile.setLocale(jsonResponse.get("locale").toString());
-        }
-        if (jsonResponse.get("zoneinfo") != null) {
-            profile.setZoneinfo(jsonResponse.get("zoneinfo").toString());
-        }
-        if (jsonResponse.get("payer_id") != null) {
-            profile.setPayerId(jsonResponse.get("payer_id").toString());
-        }
-        if (jsonResponse.get("account_type") != null) {
-            profile.setAccountType(jsonResponse.get("account_type").toString());
-        }
-        if (jsonResponse.get("language") != null) {
-            profile.setLanguage(jsonResponse.get("language").toString());
-        }
-        if (jsonResponse.get("address") != null) {
-            Map<String, String> addressMap = (Map<String, String>) jsonResponse.get("address");
-            PayPalProfile.Address addr = new PayPalProfile.Address();
-            if (addressMap.get("street_address") != null) {
-                addr.setStreetAddress(addressMap.get("street_address"));
-            }
-
-            if (addressMap.get("region") != null) {
-                addr.setRegion(addressMap.get("region"));
-            }
-
-            if (addressMap.get("locality") != null) {
-                addr.setLocality(addressMap.get("locality"));
-            }
-
-            if (addressMap.get("country") != null) {
-                addr.setCountry(addressMap.get("country"));
-            }
-
-            if (addressMap.get("postal_code") != null) {
-                addr.setPostal_code(addressMap.get("postal_code"));
-            }
-            profile.setAddress(addr);
-        }
-
         return profile;
     }
 

@@ -2,7 +2,6 @@ package org.springframework.social.openidconnect.api.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
 
 import junit.framework.Assert;
 
@@ -38,9 +37,10 @@ public class PayPalTemplateTest {
         template.setAccessToken("test");
         InputStream stream = getClass().getResourceAsStream("/paypal-api-openidconnect-response.json");
         ObjectMapper mapper = new ObjectMapper();
-        Map<String, Object> jsonMap = mapper.readValue(stream, Map.class);
-        PayPalProfile userProfile = template.extractUserProfile(jsonMap);
+        PayPalProfile userProfile = mapper.readValue(stream, PayPalProfile.class);
+        // PayPalProfile userProfile = template.extractUserProfile(jsonMap);
         Assert.assertEquals("Prabhakar", userProfile.getFamilyName());
         Assert.assertEquals("abhijith@hotmail.com", userProfile.getEmail());
+        Assert.assertNull(userProfile.getLocale());
     }
 }

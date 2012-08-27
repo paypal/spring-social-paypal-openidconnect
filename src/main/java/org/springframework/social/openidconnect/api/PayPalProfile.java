@@ -2,6 +2,10 @@ package org.springframework.social.openidconnect.api;
 
 import java.io.Serializable;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.codehaus.jackson.annotate.JsonProperty;
+
 /**
  * <p>
  * Represents the user information given by PayPal access.
@@ -11,6 +15,7 @@ import java.io.Serializable;
  * @author abprabhakar
  * 
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PayPalProfile implements Serializable {
 
     /**
@@ -18,33 +23,56 @@ public class PayPalProfile implements Serializable {
      */
     private static final long serialVersionUID = 1L;
 
+    @JsonProperty("family_name")
     private String familyName;
 
+    @JsonProperty("verified")
     private boolean verified;
 
+    @JsonProperty("locale")
     private String locale;
 
+    @JsonProperty("zoneinfo")
     private String zoneinfo;
 
+    @JsonProperty("name")
     private String name;
 
+    @JsonProperty("email")
     private String email;
 
+    @JsonProperty("given_name")
     private String givenName;
 
+    @JsonProperty("user_id")
     private String userId;
 
+    @JsonProperty("address")
     private Address address;
 
+    @JsonIgnore
     private String password;
 
+    @JsonProperty("birthday")
     private String birthday;
 
+    @JsonProperty("payer_id")
     private String payerId;
 
+    @JsonProperty("account_type")
     private String accountType;
 
+    @JsonProperty("language")
     private String language;
+
+    @JsonProperty("businessName")
+    private String businessName;
+
+    @JsonProperty("businessSubCategory")
+    private String businessSubCategory;
+
+    @JsonProperty("businessCategory")
+    private String businessCategory;
 
     public String getFamilyName() {
         return familyName;
@@ -138,14 +166,19 @@ public class PayPalProfile implements Serializable {
 
         private static final long serialVersionUID = 1L;
 
+        @JsonProperty("postal_code")
         private String postalCode;
 
+        @JsonProperty("locality")
         private String locality;
 
+        @JsonProperty("region")
         private String region;
 
+        @JsonProperty("country")
         private String country;
 
+        @JsonProperty("street_address")
         private String streetAddress;
 
         public String getPostal_code() {
@@ -222,6 +255,30 @@ public class PayPalProfile implements Serializable {
 
     public void setLanguage(String language) {
         this.language = language;
+    }
+
+    public String getBusinessName() {
+        return businessName;
+    }
+
+    public void setBusinessName(String businessName) {
+        this.businessName = businessName;
+    }
+
+    public String getBusinessSubCategory() {
+        return businessSubCategory;
+    }
+
+    public void setBusinessSubCategory(String businessSubCategory) {
+        this.businessSubCategory = businessSubCategory;
+    }
+
+    public String getBusinessCategory() {
+        return businessCategory;
+    }
+
+    public void setBusinessCategory(String businessCategory) {
+        this.businessCategory = businessCategory;
     }
 
 }
