@@ -1,5 +1,6 @@
 package org.springframework.social.openidconnect;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Random;
 
 import org.apache.log4j.Logger;
@@ -11,9 +12,6 @@ import org.springframework.util.Assert;
 
 /**
  * Implements an OAuth facility for PayPal with the predefined API URLs.
- * 
- * @author abprabhakar
- * 
  */
 public class PayPalOpenIdConnectOperation extends OAuth2Template {
 
@@ -101,9 +99,18 @@ public class PayPalOpenIdConnectOperation extends OAuth2Template {
         Random random = new Random();
         int randomInt = random.nextInt();
         byte[] randomByte = {Integer.valueOf(randomInt).byteValue()};
-        String encodedValue = new String(Base64.encode(randomByte));
-        String retValue = (System.currentTimeMillis() + encodedValue);
-        logger.debug("nonce for this request " + retValue);
+        String encodedValue;
+        String retValue;
+        try {
+            encodedValue = new String(Base64.encode(randomByte), "UTF-8");
+            retValue = (System.currentTimeMillis() + encodedValue);
+            if (logger.isDebugEnabled()) {
+                logger.debug("nonce for this request " + retValue);
+            }
+        } catch (UnsupportedEncodingException e) {
+            logger.error("encoding was not supported.", e);
+            retValue = "defaultNounce";
+        }
         return retValue;
 
     }

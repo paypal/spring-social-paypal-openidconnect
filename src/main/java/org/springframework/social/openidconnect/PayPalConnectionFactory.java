@@ -7,8 +7,6 @@ import org.springframework.social.openidconnect.api.PayPal;
  * Connection Factory implementation for PayPal Access. Uses OAuth2 itself for OpenId as both protocols are pretty much
  * similar. Both defer in identity layer which we don't care.
  * 
- * @author BML
- * 
  */
 public class PayPalConnectionFactory extends OAuth2ConnectionFactory<PayPal> {
 

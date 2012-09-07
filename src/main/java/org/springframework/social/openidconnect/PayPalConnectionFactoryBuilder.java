@@ -6,9 +6,6 @@ import org.springframework.util.StringUtils;
 /**
  * Builder is used as there are minimum set of parameters needed and optional parameters also present. Perfect case to
  * use builder pattern.
- * 
- * @author abprabhakar
- * 
  */
 public class PayPalConnectionFactoryBuilder {
 
@@ -43,15 +40,6 @@ public class PayPalConnectionFactoryBuilder {
     private String userInfoUrl;
 
     /**
-     * Default constructor for builder.
-     * 
-     * @return {@code PayPalConnectionFactoryBuilder}
-     */
-    public static PayPalConnectionFactoryBuilder builder() {
-        return new PayPalConnectionFactoryBuilder();
-    }
-
-    /**
      * Builds a {@link PayPalConnectionFactory}. AppId, AppSecret and scope are mandatory values, hence asserts for the
      * same. Other properteis are optional, but you need to set all 3 urls together. Assertion for that requirement is
      * done, only if one of the 3 urls are not null.
@@ -60,13 +48,14 @@ public class PayPalConnectionFactoryBuilder {
      */
     public PayPalConnectionFactory build() {
         Assert.hasText(appId, "AppId is required");
-        Assert.hasText(appSecret, "appSecret is required");
+        Assert.hasText(appSecret, "AppSecret is required");
         Assert.hasText(scope, "Minimum scope is requried");
         PayPalConnectionFactory factory;
         if (StringUtils.hasText(authUrl) || StringUtils.hasText(tokenUrl) || StringUtils.hasText(userInfoUrl)) {
-            Assert.hasText(authUrl, "AuthUrl, tokenUrl and userInfo all are required");
-            Assert.hasText(tokenUrl, "AuthUrl, tokenUrl and userInfo all are required");
-            Assert.hasText(userInfoUrl, "AuthUrl, tokenUrl and userInfo all are required");
+            final String msg = "AuthUrl, tokenUrl and userInfo all are required";
+            Assert.hasText(authUrl, msg);
+            Assert.hasText(tokenUrl, msg);
+            Assert.hasText(userInfoUrl, msg);
             factory = new PayPalConnectionFactory(appId, appSecret, scope, authUrl, tokenUrl, userInfoUrl);
         } else {
             factory = new PayPalConnectionFactory(appId, appSecret, scope);

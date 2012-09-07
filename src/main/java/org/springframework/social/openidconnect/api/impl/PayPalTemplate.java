@@ -16,9 +16,6 @@ import org.springframework.social.support.URIBuilder;
 /**
  * Templates which binds provider to spring social API. This template is also used to get {@code PayPalProfile} from
  * userinfo endpoint.
- * 
- * @author abprabhakar
- * 
  */
 public class PayPalTemplate extends AbstractOAuth2ApiBinding implements PayPal {
 
@@ -85,13 +82,14 @@ public class PayPalTemplate extends AbstractOAuth2ApiBinding implements PayPal {
      */
     private URI buildURI() {
         URIBuilder uriBuilder;
-        if (userInfoUrl != null) {
-            uriBuilder = URIBuilder.fromUri(this.userInfoUrl);
-        } else {
-            logger.debug("Using default user info url  " + userInfoUrl);
+        if (userInfoUrl == null) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Using default user info url  " + userInfoUrl);
+            }
             uriBuilder = URIBuilder.fromUri(PayPalConnectionProperties.getUserInfoEndpoint());
+        } else {
+            uriBuilder = URIBuilder.fromUri(this.userInfoUrl);
         }
-
         return uriBuilder.queryParam("schema", "openid").build();
     }
 

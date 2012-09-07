@@ -6,9 +6,6 @@ import org.springframework.social.openidconnect.api.impl.PayPalTemplate;
 
 /**
  * Registers paypal as service provider.
- * 
- * @author abprabhakar
- * 
  */
 public class PayPalServiceProvider extends AbstractOAuth2ServiceProvider<PayPal> {
 

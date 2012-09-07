@@ -11,9 +11,6 @@ import org.springframework.util.Assert;
  * <p>
  * Properties for connecting PayPal Access. Used to give default values for PayPal Access.
  * </p>
- * 
- * @author paypal
- * 
  */
 public final class PayPalConnectionProperties {
 
@@ -46,14 +43,14 @@ public final class PayPalConnectionProperties {
                 ClassPathResource resource = new ClassPathResource("connection-prod.properties");
                 PROPS.load(resource.getInputStream());
                 logger.debug("default properties loaded");
-                Assert.notNull(PROPS.get("authorizeEndpoint"), "Authrozie endpoint should be specified");
+                Assert.notNull(PROPS.get("authorizeEndpoint"), "Authorize endpoint should be specified");
                 Assert.notNull(PROPS.get("tokenEndpoint"), "Token endpoint should be specified");
                 Assert.notNull(PROPS.get("checkidEndpoint"), "Check Id Endpoint should be specified");
                 Assert.notNull(PROPS.get("userinfoEndpoint"), "User Info endpoint should be specified");
                 Assert.notNull(PROPS.get("disconnectEndpoint"), "Disconnect endpoint should be specified");
             } catch (IOException e) {
                 logger.error("properties file not found...you have to override url values.");
-                throw new RuntimeException("connection-{env} properties file not found");
+                throw new RuntimeException("connection-prod properties file not found");
             }
         }
     }

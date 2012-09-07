@@ -11,9 +11,6 @@ import org.springframework.social.openidconnect.api.PayPalProfile;
 
 /**
  * Tests whether JSON response can be parsed or not.
- * 
- * @author abprabhakar
- * 
  */
 public class PayPalTemplateTest {
 
@@ -38,7 +35,6 @@ public class PayPalTemplateTest {
         InputStream stream = getClass().getResourceAsStream("/paypal-api-openidconnect-response.json");
         ObjectMapper mapper = new ObjectMapper();
         PayPalProfile userProfile = mapper.readValue(stream, PayPalProfile.class);
-        // PayPalProfile userProfile = template.extractUserProfile(jsonMap);
         Assert.assertEquals("Prabhakar", userProfile.getFamilyName());
         Assert.assertEquals("abhijith@hotmail.com", userProfile.getEmail());
         Assert.assertNull(userProfile.getLocale());

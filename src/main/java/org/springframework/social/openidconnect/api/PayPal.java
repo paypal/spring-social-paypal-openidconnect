@@ -4,10 +4,6 @@ import org.springframework.social.ApiBinding;
 
 /**
  * Interface representing the calls exposed by the PayPal Access API
- * 
- * @author Felipe Albertao
- * 
- * 
  */
 public interface PayPal extends ApiBinding {
 

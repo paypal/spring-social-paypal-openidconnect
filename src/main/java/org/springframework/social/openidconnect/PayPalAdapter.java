@@ -15,8 +15,6 @@ import org.springframework.social.openidconnect.api.PayPalProfile;
  * Note: If you change scope for your application, which essentially means more user information. Then User profile
  * should be adapted similarly. This profile uses scope 'openid email address'
  * 
- * @author BML
- * 
  */
 public class PayPalAdapter implements ApiAdapter<PayPal> {
 
