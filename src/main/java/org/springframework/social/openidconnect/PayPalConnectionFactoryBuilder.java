@@ -52,7 +52,7 @@ public class PayPalConnectionFactoryBuilder {
         Assert.hasText(scope, "Minimum scope is requried");
         PayPalConnectionFactory factory;
         if (StringUtils.hasText(authUrl) || StringUtils.hasText(tokenUrl) || StringUtils.hasText(userInfoUrl)) {
-            final String msg = "AuthUrl, tokenUrl and userInfo all are required";
+            final String msg = "authUrl, tokenUrl and userInfo all are required";
             Assert.hasText(authUrl, msg);
             Assert.hasText(tokenUrl, msg);
             Assert.hasText(userInfoUrl, msg);

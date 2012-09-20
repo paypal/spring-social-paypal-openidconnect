@@ -1,6 +1,7 @@
 package org.springframework.social.openidconnect.api;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
@@ -122,6 +123,18 @@ public class PayPalProfile implements Serializable {
      */
     @JsonProperty("businessCategory")
     private String businessCategory;
+
+    /**
+     * Account number
+     */
+    @JsonProperty("account_number")
+    private String accountNumber;
+
+    /**
+     * Account creation date
+     */
+    @JsonProperty("account_creation_date")
+    private Date accountCreationDate;
 
     /**
      * Gets Last name
@@ -570,6 +583,22 @@ public class PayPalProfile implements Serializable {
      */
     public void setBusinessCategory(String businessCategory) {
         this.businessCategory = businessCategory;
+    }
+
+    public String getAccountNumber() {
+        return accountNumber;
+    }
+
+    public void setAccountNumber(String accountNumber) {
+        this.accountNumber = accountNumber;
+    }
+
+    public Date getAccountCreationDate() {
+        return accountCreationDate;
+    }
+
+    public void setAccountCreationDate(Date accountCreationDate) {
+        this.accountCreationDate = accountCreationDate;
     }
 
 }
