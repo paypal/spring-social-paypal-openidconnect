@@ -107,6 +107,12 @@ public class PayPalProfile implements Serializable {
     private String language;
 
     /**
+     * Phone number
+     */
+    @JsonProperty("phone_number")
+    private String phoneNumber;
+
+    /**
      * Business name
      */
     @JsonProperty("businessName")
@@ -585,20 +591,58 @@ public class PayPalProfile implements Serializable {
         this.businessCategory = businessCategory;
     }
 
+    /**
+     * Account number
+     * 
+     * @return - Account number
+     */
     public String getAccountNumber() {
         return accountNumber;
     }
 
+    /**
+     * Sets account number
+     * 
+     * @param accountNumber - accountNumber
+     */
     public void setAccountNumber(String accountNumber) {
         this.accountNumber = accountNumber;
     }
 
+    /**
+     * Get Account creation date
+     * 
+     * @return - creation date
+     */
     public Date getAccountCreationDate() {
         return accountCreationDate;
     }
 
+    /**
+     * Set Account creation date
+     * 
+     * @param accountCreationDate - creation date
+     */
     public void setAccountCreationDate(Date accountCreationDate) {
         this.accountCreationDate = accountCreationDate;
+    }
+
+    /**
+     * Get user primary phone number
+     * 
+     * @return - phone number
+     */
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    /**
+     * Set user phone number
+     * 
+     * @param phoneNumber - phone number
+     */
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
 }
