@@ -74,7 +74,7 @@ public class PayPalTemplate extends AbstractOAuth2ApiBinding implements PayPal {
         profile.setPassword(this.accessToken);
         if (logger.isDebugEnabled()) {
             logger.debug("access token  " + accessToken);
-            logger.debug("PayPal Profile receieved  " + profile);
+            logger.debug("PayPal Profile received  " + profile);
         }
         return profile;
     }

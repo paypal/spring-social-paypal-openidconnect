@@ -9,6 +9,7 @@ import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.conn.ssl.X509HostnameVerifier;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
+import org.apache.log4j.Logger;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.converter.FormHttpMessageConverter;
@@ -32,6 +33,11 @@ import java.util.List;
 public final class HttpClientFactory {
 
     /**
+     * Logger for {@link HttpClientFactory}
+     */
+    private static final Logger logger = Logger.getLogger(HttpClientFactory.class);
+
+    /**
      * Constructor is private since intended to use it as Factory.
      */
     private HttpClientFactory(){
@@ -50,8 +56,10 @@ public final class HttpClientFactory {
         converters.add(new FormHttpMessageConverter());
         converters.add(new MappingJacksonHttpMessageConverter());
         restTemplate.setMessageConverters(converters);
-
         restTemplate.setRequestFactory(getRequestFactory(isStrict));
+        if(logger.isDebugEnabled()){
+            logger.debug("RestTemplate is configured to use connection pooling");
+        }
         return restTemplate;
     }
 
@@ -66,6 +74,9 @@ public final class HttpClientFactory {
         factory.setReadTimeout(5000);
         HttpClient httpClient = new DefaultHttpClient(getPooledConnectionManager(isStrict));
         factory.setHttpClient(httpClient);
+        if(logger.isDebugEnabled()){
+            logger.debug("Factory is set to use connection time out and read time out");
+        }
         return factory;
     }
 
@@ -76,26 +87,29 @@ public final class HttpClientFactory {
      */
     public static ClientConnectionManager getPooledConnectionManager(boolean isStrict){
         try {
-        Scheme http = new Scheme("http", 80, PlainSocketFactory.getSocketFactory());
-        SSLContext sslcontext = SSLContext.getInstance("TLS");
-        sslcontext.init(null, null, null);
+            Scheme http = new Scheme("http", 80, PlainSocketFactory.getSocketFactory());
+            SSLContext sslcontext = SSLContext.getInstance("TLS");
+            sslcontext.init(null, null, null);
 
-            SSLSocketFactory sf = new SSLSocketFactory(sslcontext,
-                getVerifier(isStrict));
+            SSLSocketFactory sf = new SSLSocketFactory(sslcontext, getVerifier(isStrict));
 
-       Scheme https = new Scheme("https", 443, sf);
+            Scheme https = new Scheme("https", 443, sf);
 
-        SchemeRegistry schemeRegistry = new SchemeRegistry();
+            SchemeRegistry schemeRegistry = new SchemeRegistry();
             schemeRegistry.register(http);
             schemeRegistry.register(https);
 
-        PoolingClientConnectionManager cm = new PoolingClientConnectionManager(schemeRegistry);
-        // Increase max total connection to 200
-        cm.setMaxTotal(200);
-        // Increase default max connection per route to 20
-        cm.setDefaultMaxPerRoute(20);
-        return cm;
+            PoolingClientConnectionManager cm = new PoolingClientConnectionManager(schemeRegistry);
+            // Increase max total connection to 200
+            cm.setMaxTotal(200);
+            // Increase default max connection per route to 20
+            cm.setDefaultMaxPerRoute(20);
+            if(logger.isDebugEnabled()){
+                logger.debug("Pooling connection manager configured successfully.");
+            }
+            return cm;
         }catch (Exception ex){
+            logger.error("Exception thrown while configuring HttpConnectionFactory", ex);
             throw new PayPalAccessException("Not able to get HTTP Connection factory", ex);
         }
     }
@@ -108,8 +122,14 @@ public final class HttpClientFactory {
      */
     private static X509HostnameVerifier getVerifier(boolean isStrict){
         if(isStrict){
+            if(logger.isInfoEnabled()){
+                logger.info("Using Strict HostName verifier");
+            }
             return SSLSocketFactory.STRICT_HOSTNAME_VERIFIER;
         } else {
+            if(logger.isInfoEnabled()){
+                logger.info("Using Allow All HostName verifier");
+            }
             return SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER;
         }
     }

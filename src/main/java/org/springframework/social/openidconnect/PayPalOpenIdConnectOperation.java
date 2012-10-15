@@ -88,6 +88,9 @@ public class PayPalOpenIdConnectOperation extends OAuth2Template {
 
     @Override
     protected RestTemplate createRestTemplate() {
+        if(logger.isDebugEnabled()){
+            logger.debug("using pooled http connection manager");
+        }
         return HttpClientFactory.getRestTemplateWithPooledConnectionManager(true);
     }
 
