@@ -17,9 +17,10 @@ public class PayPalConnectionFactory extends OAuth2ConnectionFactory<PayPal> {
      * @param appId - Provided by developer portal when you register your application.
      * @param appSecret - Provided by developer portal when you register your application.
      * @param scope - List with scopes
+     * @param isStrict -   Flag which determines Host name verifier
      */
-    public PayPalConnectionFactory(String appId, String appSecret, String scope) {
-        super("paypal", new PayPalServiceProvider(appId, appSecret, scope), new PayPalAdapter());
+    public PayPalConnectionFactory(String appId, String appSecret, String scope, boolean isStrict) {
+        super("paypal", new PayPalServiceProvider(appId, appSecret, scope, isStrict), new PayPalAdapter());
     }
 
     /**
@@ -38,11 +39,12 @@ public class PayPalConnectionFactory extends OAuth2ConnectionFactory<PayPal> {
      * @param tokenServiceEndPoint - Token service endpoint
      * @param userInfoEndPoint - User info end point
      * @param scope - List with scopes
+     * @param isStrict -   Flag which determines Host name verifier
      */
     public PayPalConnectionFactory(String appId, String appSecret, String scope, String authorizeEndPoint,
-            String tokenServiceEndPoint, String userInfoEndPoint) {
+            String tokenServiceEndPoint, String userInfoEndPoint, boolean isStrict) {
         super("paypal", new PayPalServiceProvider(appId, appSecret, scope, authorizeEndPoint, tokenServiceEndPoint,
-                userInfoEndPoint), new PayPalAdapter());
+                userInfoEndPoint, isStrict), new PayPalAdapter());
     }
 
 }

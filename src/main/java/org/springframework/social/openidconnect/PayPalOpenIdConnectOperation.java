@@ -9,6 +9,7 @@ import org.springframework.social.oauth2.GrantType;
 import org.springframework.social.oauth2.OAuth2Parameters;
 import org.springframework.social.oauth2.OAuth2Template;
 import org.springframework.util.Assert;
+import org.springframework.web.client.RestTemplate;
 
 /**
  * Implements an OAuth facility for PayPal with the predefined API URLs.
@@ -25,6 +26,7 @@ public class PayPalOpenIdConnectOperation extends OAuth2Template {
      */
     private String scope;
 
+
     /**
      * Sets up Template to connect PayPal Access.
      * 
@@ -32,10 +34,14 @@ public class PayPalOpenIdConnectOperation extends OAuth2Template {
      * @param clientSecret - Provided by developer portal when you register your application.
      * @param scope - List with scopes
      */
-    public PayPalOpenIdConnectOperation(String clientId, String clientSecret, String scope) {
+    public PayPalOpenIdConnectOperation(String clientId, String clientSecret, String scope, boolean isStrict) {
         super(clientId, clientSecret, PayPalConnectionProperties.getAuthorizeEndpoint(), PayPalConnectionProperties
                 .getTokenEndpoint());
         this.scope = scope;
+        //Override request factory only if you want to skip host name verification
+        if(!isStrict){
+            setRequestFactory(HttpClientFactory.getRequestFactory(isStrict));
+        }
     }
 
     /**
@@ -47,11 +53,15 @@ public class PayPalOpenIdConnectOperation extends OAuth2Template {
      * @param authorizeEndPoint - PayPal Access authorize end point.
      * @param scope - List with scopes
      * @param tokenEndPoint - PayPal Access token end point.
+     * @param isStrict -   Flag which determines Host name verifier
      */
     public PayPalOpenIdConnectOperation(String clientId, String clientSecret, String scope, String authorizeEndPoint,
-            String tokenEndPoint) {
+            String tokenEndPoint, boolean isStrict) {
         super(clientId, clientSecret, authorizeEndPoint, tokenEndPoint);
         this.scope = scope;
+        if(!isStrict){
+            setRequestFactory(HttpClientFactory.getRequestFactory(isStrict));
+        }
     }
 
     /*
@@ -74,6 +84,11 @@ public class PayPalOpenIdConnectOperation extends OAuth2Template {
     @Override
     public String buildAuthorizeUrl(GrantType grantType, OAuth2Parameters parameters) {
         return super.buildAuthorizeUrl(grantType, fixedScope(parameters));
+    }
+
+    @Override
+    protected RestTemplate createRestTemplate() {
+        return HttpClientFactory.getRestTemplateWithPooledConnectionManager(true);
     }
 
     /**
@@ -114,4 +129,5 @@ public class PayPalOpenIdConnectOperation extends OAuth2Template {
         return retValue;
 
     }
+
 }

@@ -40,6 +40,12 @@ public class PayPalConnectionFactoryBuilder {
     private String userInfoUrl;
 
     /**
+     * Flag which indicates to use host name match.  By default we would like to use strict one.
+     * @see org.apache.http.conn.ssl.X509HostnameVerifier
+     */
+    private boolean strictHostNameVerifier = true;
+
+    /**
      * Builds a {@link PayPalConnectionFactory}. AppId, AppSecret and scope are mandatory values, hence asserts for the
      * same. Other properteis are optional, but you need to set all 3 urls together. Assertion for that requirement is
      * done, only if one of the 3 urls are not null.
@@ -56,9 +62,9 @@ public class PayPalConnectionFactoryBuilder {
             Assert.hasText(authUrl, msg);
             Assert.hasText(tokenUrl, msg);
             Assert.hasText(userInfoUrl, msg);
-            factory = new PayPalConnectionFactory(appId, appSecret, scope, authUrl, tokenUrl, userInfoUrl);
+            factory = new PayPalConnectionFactory(appId, appSecret, scope, authUrl, tokenUrl, userInfoUrl, strictHostNameVerifier);
         } else {
-            factory = new PayPalConnectionFactory(appId, appSecret, scope);
+            factory = new PayPalConnectionFactory(appId, appSecret, scope, strictHostNameVerifier);
         }
         return factory;
     }
@@ -126,6 +132,18 @@ public class PayPalConnectionFactoryBuilder {
      */
     public PayPalConnectionFactoryBuilder withUserInfoUrl(String userInfoUrl) {
         this.userInfoUrl = userInfoUrl;
+        return this;
+    }
+
+    /**
+     * Sets User Info url. Only set this if you want to override default.
+     *
+     * @param isStrict - Flag to use strict host name verifier.
+     * @return - {@link PayPalConnectionFactoryBuilder}
+     * @see org.apache.http.conn.ssl.X509HostnameVerifier
+     */
+    public PayPalConnectionFactoryBuilder useStirctHostNameVerifier(boolean isStrict) {
+        this.strictHostNameVerifier = isStrict;
         return this;
     }
 

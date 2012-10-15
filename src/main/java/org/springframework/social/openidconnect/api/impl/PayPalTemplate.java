@@ -8,10 +8,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.social.oauth2.AbstractOAuth2ApiBinding;
+import org.springframework.social.openidconnect.HttpClientFactory;
 import org.springframework.social.openidconnect.PayPalConnectionProperties;
 import org.springframework.social.openidconnect.api.PayPal;
 import org.springframework.social.openidconnect.api.PayPalProfile;
 import org.springframework.social.support.URIBuilder;
+import org.springframework.web.client.RestTemplate;
 
 /**
  * Templates which binds provider to spring social API. This template is also used to get {@code PayPalProfile} from
@@ -34,6 +36,8 @@ public class PayPalTemplate extends AbstractOAuth2ApiBinding implements PayPal {
      */
     private String userInfoUrl;
 
+    private boolean isStrict;
+
     /**
      * Default constructor.
      */
@@ -47,10 +51,11 @@ public class PayPalTemplate extends AbstractOAuth2ApiBinding implements PayPal {
      * 
      * @param userInfoUrl - User Info endpoint.
      */
-    public PayPalTemplate(String accessToken, String userInfoUrl) {
+    public PayPalTemplate(String accessToken, String userInfoUrl, boolean isStrict) {
         super(accessToken);
         this.accessToken = accessToken;
         this.userInfoUrl = userInfoUrl;
+        this.isStrict =  isStrict;
     }
 
     /*
@@ -109,6 +114,11 @@ public class PayPalTemplate extends AbstractOAuth2ApiBinding implements PayPal {
      */
     public void setUserInfoUrl(String userInfoUrl) {
         this.userInfoUrl = userInfoUrl;
+    }
+
+    @Override
+    protected void configureRestTemplate(RestTemplate restTemplate) {
+        restTemplate.setRequestFactory(HttpClientFactory.getRequestFactory(isStrict));
     }
 
 }

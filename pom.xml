@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.springframework.social.openidconnect</groupId>
 	<artifactId>spring-social-openidconnect</artifactId>
-	<version>1.0.5.RELEASE</version>
+	<version>1.0.6.RELEASE</version>
 	<name>Spring Social OpenId Connect</name>
 	<description>Extends Spring Social core API to add support for openid connect</description>
 	<packaging>jar</packaging>
@@ -46,6 +46,11 @@
 			<artifactId>commons-logging</artifactId>
 			<version>1.1.1</version>
 		</dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.2.1</version>
+        </dependency>
 		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
 			<artifactId>jackson-mapper-asl</artifactId>
