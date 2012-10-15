@@ -24,7 +24,7 @@ public class PayPalTemplate extends AbstractOAuth2ApiBinding implements PayPal {
     /**
      * Logger for PayPalTemplate
      */
-    private Logger logger = Logger.getLogger(PayPalTemplate.class);
+    private static Logger logger = Logger.getLogger(PayPalTemplate.class);
 
     /**
      * Access token given by PayPal Access.

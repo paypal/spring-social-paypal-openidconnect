@@ -19,7 +19,7 @@ public class PayPalOpenIdConnectOperation extends OAuth2Template {
     /**
      * Logger for {@link PayPalOpenIdConnectOperation}
      */
-    private Logger logger = Logger.getLogger(PayPalOpenIdConnectOperation.class);
+    private static Logger logger = Logger.getLogger(PayPalOpenIdConnectOperation.class);
 
     /**
      * Scope to be included in auth request.
@@ -88,9 +88,6 @@ public class PayPalOpenIdConnectOperation extends OAuth2Template {
 
     @Override
     protected RestTemplate createRestTemplate() {
-        if(logger.isDebugEnabled()){
-            logger.debug("using pooled http connection manager");
-        }
         return HttpClientFactory.getRestTemplateWithPooledConnectionManager(true);
     }
 

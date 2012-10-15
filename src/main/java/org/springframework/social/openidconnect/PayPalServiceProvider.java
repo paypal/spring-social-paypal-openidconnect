@@ -49,7 +49,7 @@ public class PayPalServiceProvider extends AbstractOAuth2ServiceProvider<PayPal>
 
     @Override
     public PayPal getApi(String accessToken) {
-        return new PayPalTemplate(accessToken, userInfoUrl, this.isStrict);
+        return new PayPalTemplate(accessToken, userInfoUrl, isStrict);
     }
 
 }
