@@ -86,11 +86,6 @@ public class PayPalOpenIdConnectOperation extends OAuth2Template {
         return super.buildAuthorizeUrl(grantType, fixedScope(parameters));
     }
 
-    @Override
-    protected RestTemplate createRestTemplate() {
-        return HttpClientFactory.getRestTemplateWithPooledConnectionManager(true);
-    }
-
     /**
      * Sets parameters for request.
      * 

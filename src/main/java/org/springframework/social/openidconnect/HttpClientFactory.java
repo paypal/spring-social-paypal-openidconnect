@@ -45,25 +45,6 @@ public final class HttpClientFactory {
     }
 
     /**
-     * Creates a RestTemplate with default error handler and message converters.
-     * @param isStrict - Flag which determines Host name verifier
-     * @return - {@link RestTemplate}
-     */
-    public static RestTemplate getRestTemplateWithPooledConnectionManager(boolean isStrict){
-        RestTemplate restTemplate = new RestTemplate();
-        restTemplate.setErrorHandler(new DefaultResponseErrorHandler());
-        List<HttpMessageConverter<?>> converters = new ArrayList<HttpMessageConverter<?>>(2);
-        converters.add(new FormHttpMessageConverter());
-        converters.add(new MappingJacksonHttpMessageConverter());
-        restTemplate.setMessageConverters(converters);
-        restTemplate.setRequestFactory(getRequestFactory(isStrict));
-        if(logger.isDebugEnabled()){
-            logger.debug("RestTemplate is configured to use connection pooling");
-        }
-        return restTemplate;
-    }
-
-    /**
      * Creates a Http Request Factory with user defined settings.
      * @param isStrict -   Flag which determines Host name verifier
      * @return - {@link HttpComponentsClientHttpRequestFactory}
