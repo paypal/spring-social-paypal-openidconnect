@@ -13,6 +13,7 @@ import org.springframework.social.openidconnect.PayPalConnectionProperties;
 import org.springframework.social.openidconnect.api.PayPal;
 import org.springframework.social.openidconnect.api.PayPalProfile;
 import org.springframework.social.support.URIBuilder;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -67,14 +68,19 @@ public class PayPalTemplate extends AbstractOAuth2ApiBinding implements PayPal {
     public PayPalProfile getUserProfile() {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", this.accessToken);
-        ResponseEntity<PayPalProfile> jsonResponse = getRestTemplate().exchange(buildURI(), HttpMethod.GET,
-                new HttpEntity<byte[]>(headers), PayPalProfile.class);
-        PayPalProfile profile = jsonResponse.getBody();
-        // Password cannot be blank for Spring security. Setting it to access token rather keeping it as "N/A".
-        profile.setPassword(this.accessToken);
-        if (logger.isDebugEnabled()) {
-            logger.debug("access token  " + accessToken);
-            logger.debug("PayPal Profile received  " + profile);
+        PayPalProfile profile = null;
+        try {
+            ResponseEntity<PayPalProfile> jsonResponse = getRestTemplate().exchange(buildURI(), HttpMethod.GET,
+                    new HttpEntity<byte[]>(headers), PayPalProfile.class);
+            profile = jsonResponse.getBody();
+            // Password cannot be blank for Spring security. Setting it to access token rather keeping it as "N/A".
+            profile.setPassword(this.accessToken);
+            if (logger.isDebugEnabled()) {
+                logger.debug("access token  " + accessToken);
+                logger.debug("PayPal Profile received  " + profile);
+            }
+        } catch (HttpClientErrorException ex){
+            logger.error("User info could not be retrieved " + ex.getMessage() + "  " + ex.getResponseBodyAsString());
         }
         return profile;
     }

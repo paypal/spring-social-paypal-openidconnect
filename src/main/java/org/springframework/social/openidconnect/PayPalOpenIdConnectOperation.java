@@ -72,7 +72,11 @@ public class PayPalOpenIdConnectOperation extends OAuth2Template {
      */
     @Override
     public String buildAuthenticateUrl(GrantType grantType, OAuth2Parameters parameters) {
-        return super.buildAuthenticateUrl(grantType, fixedScope(parameters));
+        String authenticateUrl = super.buildAuthenticateUrl(grantType, fixedScope(parameters));
+        if(logger.isDebugEnabled()){
+            logger.debug("Authenticate url:" + authenticateUrl);
+        }
+        return authenticateUrl;
     }
 
     /*
@@ -83,7 +87,11 @@ public class PayPalOpenIdConnectOperation extends OAuth2Template {
      */
     @Override
     public String buildAuthorizeUrl(GrantType grantType, OAuth2Parameters parameters) {
-        return super.buildAuthorizeUrl(grantType, fixedScope(parameters));
+        String authorizeUrl = super.buildAuthorizeUrl(grantType, fixedScope(parameters));
+        if(logger.isDebugEnabled()){
+            logger.debug("Authorize url:" + authorizeUrl);
+        }
+        return authorizeUrl;
     }
 
     /**
