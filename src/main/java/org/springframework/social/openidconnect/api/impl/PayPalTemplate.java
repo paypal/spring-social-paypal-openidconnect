@@ -37,7 +37,6 @@ public class PayPalTemplate extends AbstractOAuth2ApiBinding implements PayPal {
      */
     private String userInfoUrl;
 
-    private boolean isStrict;
 
     /**
      * Default constructor.
@@ -56,7 +55,12 @@ public class PayPalTemplate extends AbstractOAuth2ApiBinding implements PayPal {
         super(accessToken);
         this.accessToken = accessToken;
         this.userInfoUrl = userInfoUrl;
-        this.isStrict =  isStrict;
+        if(logger.isDebugEnabled()){
+            logger.debug("user info url is " + userInfoUrl + " and host name verifier isStrict = " + isStrict);
+        }
+        //could not override request factory using configureRestTemplate method as isStrict instance variable is not
+        //initialized before constructor completes.  So setting request factory just before constructor completes
+        setRequestFactory(HttpClientFactory.getRequestFactory(isStrict));
     }
 
     /*
@@ -70,6 +74,7 @@ public class PayPalTemplate extends AbstractOAuth2ApiBinding implements PayPal {
         headers.add("Authorization", this.accessToken);
         PayPalProfile profile = null;
         try {
+
             ResponseEntity<PayPalProfile> jsonResponse = getRestTemplate().exchange(buildURI(), HttpMethod.GET,
                     new HttpEntity<byte[]>(headers), PayPalProfile.class);
             profile = jsonResponse.getBody();
@@ -95,7 +100,7 @@ public class PayPalTemplate extends AbstractOAuth2ApiBinding implements PayPal {
         URIBuilder uriBuilder;
         if (userInfoUrl == null) {
             if (logger.isDebugEnabled()) {
-                logger.debug("Using default user info url  " + userInfoUrl);
+                logger.debug("Using default user info url");
             }
             uriBuilder = URIBuilder.fromUri(PayPalConnectionProperties.getUserInfoEndpoint());
         } else {
@@ -121,10 +126,4 @@ public class PayPalTemplate extends AbstractOAuth2ApiBinding implements PayPal {
     public void setUserInfoUrl(String userInfoUrl) {
         this.userInfoUrl = userInfoUrl;
     }
-
-    @Override
-    protected void configureRestTemplate(RestTemplate restTemplate) {
-        restTemplate.setRequestFactory(HttpClientFactory.getRequestFactory(isStrict));
-    }
-
 }

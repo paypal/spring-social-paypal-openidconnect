@@ -102,17 +102,16 @@ public final class HttpClientFactory {
      * @see  SSLSocketFactory
      */
     private static X509HostnameVerifier getVerifier(boolean isStrict){
-        if(isStrict){
+        if(!isStrict) {
             if(logger.isInfoEnabled()){
-                logger.info("Using Strict HostName verifier");
-            }
-            return SSLSocketFactory.STRICT_HOSTNAME_VERIFIER;
-        } else {
-            if(logger.isInfoEnabled()){
-                logger.info("Using Allow All HostName verifier");
+                logger.info("Using Allow All HostName verifier. isStrict = " + isStrict);
             }
             return SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER;
         }
+        if(logger.isInfoEnabled()){
+            logger.info("Using Strict HostName verifier. isStrict = " + isStrict);
+        }
+        return SSLSocketFactory.STRICT_HOSTNAME_VERIFIER;
     }
 
 }

@@ -38,10 +38,9 @@ public class PayPalOpenIdConnectOperation extends OAuth2Template {
         super(clientId, clientSecret, PayPalConnectionProperties.getAuthorizeEndpoint(), PayPalConnectionProperties
                 .getTokenEndpoint());
         this.scope = scope;
-        //Override request factory only if you want to skip host name verification
-        if(!isStrict){
-            setRequestFactory(HttpClientFactory.getRequestFactory(isStrict));
-        }
+        //Override request factory after rest template has been initialized
+        setRequestFactory(HttpClientFactory.getRequestFactory(isStrict));
+
     }
 
     /**
@@ -59,9 +58,8 @@ public class PayPalOpenIdConnectOperation extends OAuth2Template {
             String tokenEndPoint, boolean isStrict) {
         super(clientId, clientSecret, authorizeEndPoint, tokenEndPoint);
         this.scope = scope;
-        if(!isStrict){
-            setRequestFactory(HttpClientFactory.getRequestFactory(isStrict));
-        }
+        //Override request factory after rest template has been initialized
+        setRequestFactory(HttpClientFactory.getRequestFactory(isStrict));
     }
 
     /*
