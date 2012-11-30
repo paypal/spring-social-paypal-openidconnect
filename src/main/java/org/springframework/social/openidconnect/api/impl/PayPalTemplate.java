@@ -1,8 +1,11 @@
 package org.springframework.social.openidconnect.api.impl;
 
 import java.net.URI;
+import java.util.Iterator;
 
+import org.apache.commons.beanutils.BeanMap;
 import org.apache.log4j.Logger;
+import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -74,17 +77,22 @@ public class PayPalTemplate extends AbstractOAuth2ApiBinding implements PayPal {
         headers.add("Authorization", this.accessToken);
         PayPalProfile profile = null;
         try {
-
             ResponseEntity<PayPalProfile> jsonResponse = getRestTemplate().exchange(buildURI(), HttpMethod.GET,
                     new HttpEntity<byte[]>(headers), PayPalProfile.class);
             profile = jsonResponse.getBody();
             // Password cannot be blank for Spring security. Setting it to access token rather keeping it as "N/A".
             profile.setPassword(this.accessToken);
-            if (logger.isDebugEnabled()) {
-                logger.debug("access token  " + accessToken);
-                logger.debug("PayPal Profile received  " + profile);
+
+            //logging returned back user info
+            if(logger.isInfoEnabled()) {
+                BeanMap beanMap = new BeanMap(profile);
+                for (Iterator i = beanMap.keySet().iterator(); i.hasNext();) {
+                    String property = (String) i.next();
+                    Object value = beanMap.get(property);
+                    logger.info(property + " -> " + value);
+                }
             }
-        } catch (HttpClientErrorException ex){
+          } catch (HttpClientErrorException ex){
             logger.error("User info could not be retrieved " + ex.getMessage() + "  " + ex.getResponseBodyAsString());
         }
         return profile;
@@ -106,7 +114,11 @@ public class PayPalTemplate extends AbstractOAuth2ApiBinding implements PayPal {
         } else {
             uriBuilder = URIBuilder.fromUri(this.userInfoUrl);
         }
-        return uriBuilder.queryParam("schema", "openid").build();
+        URI returnURI = uriBuilder.queryParam("schema", "openid").build();
+        if(logger.isInfoEnabled()){
+            logger.info("User info uri " + returnURI.toString());
+        }
+        return returnURI;
     }
 
     /**
