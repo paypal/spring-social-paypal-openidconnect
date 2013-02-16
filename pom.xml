@@ -8,7 +8,7 @@
 	</parent>
 	<groupId>org.springframework.social.openidconnect</groupId>
 	<artifactId>spring-social-openidconnect</artifactId>
-	<version>1.0.7.RELEASE</version>
+	<version>1.0.8.RELEASE</version>
 	<name>Spring Social OpenId Connect</name>
 	<description>Extends Spring Social core API to add support for openid connect</description>
 	<packaging>jar</packaging>

@@ -1,7 +1,14 @@
 package org.springframework.social.openidconnect;
 
+import org.springframework.social.connect.Connection;
+import org.springframework.social.connect.ConnectionData;
+import org.springframework.social.connect.support.OAuth2Connection;
 import org.springframework.social.connect.support.OAuth2ConnectionFactory;
+import org.springframework.social.oauth2.AccessGrant;
 import org.springframework.social.openidconnect.api.PayPal;
+import org.springframework.social.openidconnect.support.OpenIdAccessGrant;
+import org.springframework.social.openidconnect.support.OpenIdConnection;
+import org.springframework.social.openidconnect.support.OpenIdConnectionData;
 
 /**
  * Connection Factory implementation for PayPal Access. Uses OAuth2 itself for OpenId as both protocols are pretty much
@@ -10,41 +17,37 @@ import org.springframework.social.openidconnect.api.PayPal;
  */
 public class PayPalConnectionFactory extends OAuth2ConnectionFactory<PayPal> {
 
+    private  PayPalServiceProvider serviceProvider;
+
     /**
      * 
      * Registers connection as 'paypal'. This key is used for managing connections by spring-social.
      * 
-     * @param appId - Provided by developer portal when you register your application.
-     * @param appSecret - Provided by developer portal when you register your application.
-     * @param scope - List with scopes
-     * @param isStrict -   Flag which determines Host name verifier
+     * @param serviceProvider - {@link PayPalServiceProvider}
      */
-    public PayPalConnectionFactory(String appId, String appSecret, String scope, boolean isStrict) {
-        super("paypal", new PayPalServiceProvider(appId, appSecret, scope, isStrict), new PayPalAdapter());
+    public PayPalConnectionFactory(PayPalServiceProvider serviceProvider) {
+        super("paypal", serviceProvider, new PayPalAdapter());
+        this.serviceProvider = serviceProvider;
     }
 
     /**
-     * <p>
-     * Registers connection as 'paypal'. This key is used for managing connections by spring-social.
-     * </p>
-     * 
-     * <p>
-     * Note: Tried to introduce Builder or Essence pattern instead of having these many arguments in constructor. But
-     * was very complicated because the parent class lacks setter method. Maybe a improvement to look at future.
-     * </p>
-     * 
-     * @param appId - Provided by developer portal when you register your application.
-     * @param appSecret - Provided by developer portal when you register your application.
-     * @param authorizeEndPoint - Autorize endpoint for PayPal Access
-     * @param tokenServiceEndPoint - Token service endpoint
-     * @param userInfoEndPoint - User info end point
-     * @param scope - List with scopes
-     * @param isStrict -   Flag which determines Host name verifier
+     * Create a OAuth2-based {@link org.springframework.social.connect.Connection} from the {@link org.springframework.social.oauth2.AccessGrant} returned after {@link #getOAuthOperations() completing the OAuth2 flow}.
+     * @param accessGrant the access grant
+     * @return the new service provider connection
+     * @see org.springframework.social.oauth2.OAuth2Operations#exchangeForAccess(String, String, org.springframework.util.MultiValueMap)
      */
-    public PayPalConnectionFactory(String appId, String appSecret, String scope, String authorizeEndPoint,
-            String tokenServiceEndPoint, String userInfoEndPoint, boolean isStrict) {
-        super("paypal", new PayPalServiceProvider(appId, appSecret, scope, authorizeEndPoint, tokenServiceEndPoint,
-                userInfoEndPoint, isStrict), new PayPalAdapter());
+    public Connection<PayPal> createConnection(AccessGrant accessGrant) {
+        OpenIdAccessGrant openIdAccessGrant = (OpenIdAccessGrant) accessGrant;
+        return new OpenIdConnection<PayPal>(getProviderId(), extractProviderUserId(openIdAccessGrant), openIdAccessGrant.getAccessToken(),
+                openIdAccessGrant.getRefreshToken(), openIdAccessGrant.getIdToken(), openIdAccessGrant.getExpireTime(), this.serviceProvider, getApiAdapter());
     }
 
+    /**
+     * Create a OAuth2-based {@link org.springframework.social.connect.Connection} from the connection data.
+     */
+    @Override
+    public Connection<PayPal> createConnection(ConnectionData data) {
+        OpenIdConnectionData connectionData = (OpenIdConnectionData) data;
+        return new OpenIdConnection<PayPal>(connectionData, this.serviceProvider, getApiAdapter());
+    }
 }

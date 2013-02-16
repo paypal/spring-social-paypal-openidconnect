@@ -1,15 +1,17 @@
 package org.springframework.social.openidconnect;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Map;
 import java.util.Random;
 
 import org.apache.log4j.Logger;
 import org.springframework.security.crypto.codec.Base64;
+import org.springframework.social.oauth2.AccessGrant;
 import org.springframework.social.oauth2.GrantType;
 import org.springframework.social.oauth2.OAuth2Parameters;
 import org.springframework.social.oauth2.OAuth2Template;
+import org.springframework.social.openidconnect.support.OpenIdAccessGrant;
 import org.springframework.util.Assert;
-import org.springframework.web.client.RestTemplate;
 
 /**
  * Implements an OAuth facility for PayPal with the predefined API URLs.
@@ -26,6 +28,8 @@ public class PayPalOpenIdConnectOperation extends OAuth2Template {
      */
     private String scope;
 
+    private boolean disableLoginVariant;
+
 
     /**
      * Sets up Template to connect PayPal Access.
@@ -33,11 +37,14 @@ public class PayPalOpenIdConnectOperation extends OAuth2Template {
      * @param clientId - Provided by developer portal when you register your application.
      * @param clientSecret - Provided by developer portal when you register your application.
      * @param scope - List with scopes
+     * @param isStrict -   Flag which determines Host name verifier
+     * @param disableLoginVariant - Disables "Not You" screen
      */
-    public PayPalOpenIdConnectOperation(String clientId, String clientSecret, String scope, boolean isStrict) {
+    public PayPalOpenIdConnectOperation(String clientId, String clientSecret, String scope, boolean isStrict, boolean disableLoginVariant) {
         super(clientId, clientSecret, PayPalConnectionProperties.getAuthorizeEndpoint(), PayPalConnectionProperties
                 .getTokenEndpoint());
         this.scope = scope;
+        this.disableLoginVariant = disableLoginVariant;
         //Override request factory after rest template has been initialized
         setRequestFactory(HttpClientFactory.getRequestFactory(isStrict));
 
@@ -53,24 +60,42 @@ public class PayPalOpenIdConnectOperation extends OAuth2Template {
      * @param scope - List with scopes
      * @param tokenEndPoint - PayPal Access token end point.
      * @param isStrict -   Flag which determines Host name verifier
+     * @param disableLoginVariant - Disables "Not You" screen
      */
     public PayPalOpenIdConnectOperation(String clientId, String clientSecret, String scope, String authorizeEndPoint,
-            String tokenEndPoint, boolean isStrict) {
+            String tokenEndPoint, boolean isStrict, boolean disableLoginVariant) {
         super(clientId, clientSecret, authorizeEndPoint, tokenEndPoint);
         this.scope = scope;
+        this.disableLoginVariant = disableLoginVariant;
         //Override request factory after rest template has been initialized
         setRequestFactory(HttpClientFactory.getRequestFactory(isStrict));
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.springframework.social.oauth2.OAuth2Template#buildAuthenticateUrl
-     * (org.springframework.social.oauth2.GrantType , org.springframework.social.oauth2.OAuth2Parameters)
+    /**
+     * Creates an {@link org.springframework.social.oauth2.AccessGrant} given the response from the access token exchange with the provider.
+     * May be overridden to create a custom AccessGrant that captures provider-specific information from the access token response.
+     *
+     * @param accessToken  the access token value received from the provider
+     * @param scope        the scope of the access token
+     * @param refreshToken a refresh token value received from the provider
+     * @param expiresIn    the time (in seconds) remaining before the access token expires.
+     * @param response     all parameters from the response received in the access token exchange.
+     * @return an {@link org.springframework.social.oauth2.AccessGrant}
      */
     @Override
+    protected AccessGrant createAccessGrant(String accessToken, String scope, String refreshToken, Integer expiresIn, Map<String, Object> response) {
+        return new OpenIdAccessGrant(accessToken, scope, refreshToken, expiresIn, (String) response.get("id_token"));
+    }
+
+    /*
+    * (non-Javadoc)
+    *
+    * @see org.springframework.social.oauth2.OAuth2Template#buildAuthenticateUrl
+    * (org.springframework.social.oauth2.GrantType , org.springframework.social.oauth2.OAuth2Parameters)
+    */
+    @Override
     public String buildAuthenticateUrl(GrantType grantType, OAuth2Parameters parameters) {
-        String authenticateUrl = super.buildAuthenticateUrl(grantType, fixedScope(parameters));
+        String authenticateUrl = super.buildAuthenticateUrl(grantType, getRequestParameters(parameters));
         if(logger.isDebugEnabled()){
             logger.debug("Authenticate url:" + authenticateUrl);
         }
@@ -85,7 +110,7 @@ public class PayPalOpenIdConnectOperation extends OAuth2Template {
      */
     @Override
     public String buildAuthorizeUrl(GrantType grantType, OAuth2Parameters parameters) {
-        String authorizeUrl = super.buildAuthorizeUrl(grantType, fixedScope(parameters));
+        String authorizeUrl = super.buildAuthorizeUrl(grantType, getRequestParameters(parameters));
         if(logger.isDebugEnabled()){
             logger.debug("Authorize url:" + authorizeUrl);
         }
@@ -99,10 +124,14 @@ public class PayPalOpenIdConnectOperation extends OAuth2Template {
      * @return - Filled up parameters.
      * 
      */
-    private OAuth2Parameters fixedScope(OAuth2Parameters parameters) {
+    private OAuth2Parameters getRequestParameters(OAuth2Parameters parameters) {
         Assert.hasText(scope, "scope cannot be null or empty");
         parameters.setScope(scope);
         parameters.add("nonce", createNonce());
+        //skips 'Not You' Screen
+        if(this.disableLoginVariant){
+            parameters.add("prompt", "skip_select_account");
+        }
         return parameters;
     }
 
