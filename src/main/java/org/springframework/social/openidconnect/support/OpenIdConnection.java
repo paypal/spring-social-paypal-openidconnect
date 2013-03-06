@@ -5,6 +5,11 @@ import org.springframework.social.connect.ConnectionData;
 import org.springframework.social.connect.support.OAuth2Connection;
 import org.springframework.social.oauth2.OAuth2ServiceProvider;
 
+/**
+ * Connection Class which extends OAuth2Connection and adds idToken.  Since persisting
+ * of other attributes like accesstoken and refresh token could not be achieved directly it overrides
+ * parent properties.
+ */
 public class OpenIdConnection<A> extends OAuth2Connection<A> {
 
 
@@ -33,6 +38,10 @@ public class OpenIdConnection<A> extends OAuth2Connection<A> {
         this.expireTime = data.getExpireTime();
     }
 
+    /**
+     * Creates OpenId Connection Data with given properties.
+     * @return <code>OpenIdConnectionData</code>
+     */
     @Override
     public ConnectionData createData() {
         synchronized (getMonitor()) {

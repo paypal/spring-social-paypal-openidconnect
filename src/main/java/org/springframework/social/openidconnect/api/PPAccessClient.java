@@ -69,11 +69,11 @@ public class PPAccessClient {
         StringBuilder authUrl = new StringBuilder(
                 "https://www.paypal.com/webapps/auth/protocol/openidconnect/v1/authorize");
         // all the below params should be changed according to your needs. Below values are just an example.
-        authUrl.append("?client_id=3d14eca3776816811057b75d413ffebb");
+        authUrl.append("?client_id=a36149f1050b99f0902675a9fe9ed4b9");
         authUrl.append("&response_type=code");
         authUrl.append("&scope=openid profile email address");
         authUrl.append("&nonce=" + createNonce());
-        authUrl.append("&redirect_uri=https://financing.paypal.com/ppfinportal/junk");
+        authUrl.append("&redirect_uri=https://financing-qa01.paypal.com/ppfinportal/junk");
         return authUrl.toString();
     }
 
@@ -153,8 +153,8 @@ public class PPAccessClient {
      */
     private static String getAuthorizationHeader() {
         // client id and secret has been left empty for user to fill in.
-        String clientId = "3d14eca3776816811057b75d413ffebb";
-        String clientSecret = "48bcc6804d422186";
+        String clientId = "a36149f1050b99f0902675a9fe9ed4b9";
+        String clientSecret = "c540d4fc884ad659";
 
         String authString = clientId + ":" + clientSecret;
         BASE64Encoder encoder = new BASE64Encoder();

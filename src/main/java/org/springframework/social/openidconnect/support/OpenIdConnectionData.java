@@ -3,11 +3,7 @@ package org.springframework.social.openidconnect.support;
 import org.springframework.social.connect.ConnectionData;
 
 /**
- * Created with IntelliJ IDEA.
- * User: abprabhakar
- * Date: 2/13/13
- * Time: 5:42 PM
- * To change this template use File | Settings | File Templates.
+ * Connection data which extends OAuth2 specific ConnectionData and add idToken property.
  */
 public class OpenIdConnectionData extends ConnectionData {
 
