@@ -40,6 +40,11 @@ public class PayPalConnectionFactoryBuilder {
     private String userInfoUrl;
 
     /**
+     * Disables "Not You" screen which is also called as Login Variant Screen.
+     */
+    private boolean disableLoginVariant;
+
+    /**
      * Flag which indicates to use host name match.  By default we would like to use strict one.
      * @see org.apache.http.conn.ssl.X509HostnameVerifier
      */
@@ -57,15 +62,17 @@ public class PayPalConnectionFactoryBuilder {
         Assert.hasText(appSecret, "AppSecret is required");
         Assert.hasText(scope, "Minimum scope is requried");
         PayPalConnectionFactory factory;
+        PayPalServiceProvider serviceProvider;
         if (StringUtils.hasText(authUrl) || StringUtils.hasText(tokenUrl) || StringUtils.hasText(userInfoUrl)) {
             final String msg = "authUrl, tokenUrl and userInfo all are required";
             Assert.hasText(authUrl, msg);
             Assert.hasText(tokenUrl, msg);
             Assert.hasText(userInfoUrl, msg);
-            factory = new PayPalConnectionFactory(appId, appSecret, scope, authUrl, tokenUrl, userInfoUrl, strictHostNameVerifier);
+            serviceProvider = new PayPalServiceProvider(appId, appSecret, scope, authUrl, tokenUrl, userInfoUrl, strictHostNameVerifier, disableLoginVariant);
         } else {
-            factory = new PayPalConnectionFactory(appId, appSecret, scope, strictHostNameVerifier);
+            serviceProvider = new PayPalServiceProvider(appId, appSecret, scope, strictHostNameVerifier, disableLoginVariant);
         }
+        factory = new PayPalConnectionFactory(serviceProvider);
         return factory;
     }
 
@@ -144,6 +151,17 @@ public class PayPalConnectionFactoryBuilder {
      */
     public PayPalConnectionFactoryBuilder useStirctHostNameVerifier(boolean isStrict) {
         this.strictHostNameVerifier = isStrict;
+        return this;
+    }
+
+    /**
+     * Disables Log In Variant Screen
+     *
+     * @param disableLoginVariant
+     * @return - {@link PayPalConnectionFactoryBuilder}
+     */
+    public PayPalConnectionFactoryBuilder hasLogInVariant(boolean disableLoginVariant) {
+        this.disableLoginVariant = disableLoginVariant;
         return this;
     }
 
