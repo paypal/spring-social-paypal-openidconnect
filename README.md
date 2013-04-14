@@ -9,4 +9,6 @@ More information at on Login With PayPal can be found [here] (https://developer.
 
 Instructions on how to use this API https://github.com/paypal/spring-social-paypal-openidconnect/wiki/Quick-Start
 
+If you need more information on this API please contact abprabhakar@paypal.com or falbertao@paypal.com
+
 
