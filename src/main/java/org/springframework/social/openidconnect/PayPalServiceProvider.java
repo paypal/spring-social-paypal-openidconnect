@@ -23,10 +23,9 @@ public class PayPalServiceProvider extends AbstractOAuth2ServiceProvider<PayPal>
      * @param appSecret - Provided by developer portal when you register your application.
      * @param scope - List with scopes
      * @param isStrict -   Flag which determines Host name verifier
-     * @param disableLoginVariant - Disables "Not You" screen
      */
-    public PayPalServiceProvider(String appId, String appSecret, String scope, boolean isStrict, boolean disableLoginVariant) {
-        super(new PayPalOpenIdConnectOperation(appId, appSecret, scope, isStrict, disableLoginVariant));
+    public PayPalServiceProvider(String appId, String appSecret, String scope, boolean isStrict) {
+        super(new PayPalOpenIdConnectOperation(appId, appSecret, scope, isStrict));
         this.isStrict = isStrict;
     }
 
@@ -40,11 +39,10 @@ public class PayPalServiceProvider extends AbstractOAuth2ServiceProvider<PayPal>
      * @param userInfoEndPoint - User info end point
      * @param scope - List with scopes
      * @param isStrict -   Flag which determines Host name verifier
-     * @param disableLoginVariant - Disables "Not You" screen
      */
     public PayPalServiceProvider(String appId, String appSecret, String scope, String authorizeEndPoint,
-            String tokenServiceEndPoint, String userInfoEndPoint, boolean isStrict, boolean disableLoginVariant) {
-        super(new PayPalOpenIdConnectOperation(appId, appSecret, scope, authorizeEndPoint, tokenServiceEndPoint, isStrict, disableLoginVariant));
+            String tokenServiceEndPoint, String userInfoEndPoint, boolean isStrict) {
+        super(new PayPalOpenIdConnectOperation(appId, appSecret, scope, authorizeEndPoint, tokenServiceEndPoint, isStrict));
         this.userInfoUrl = userInfoEndPoint;
         this.isStrict = isStrict;
     }

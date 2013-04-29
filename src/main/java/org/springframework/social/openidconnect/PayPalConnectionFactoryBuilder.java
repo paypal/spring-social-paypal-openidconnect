@@ -40,11 +40,6 @@ public class PayPalConnectionFactoryBuilder {
     private String userInfoUrl;
 
     /**
-     * Disables "Not You" screen which is also called as Login Variant Screen.
-     */
-    private boolean disableLoginVariant;
-
-    /**
      * Flag which indicates to use host name match.  By default we would like to use strict one.
      * @see org.apache.http.conn.ssl.X509HostnameVerifier
      */
@@ -68,9 +63,9 @@ public class PayPalConnectionFactoryBuilder {
             Assert.hasText(authUrl, msg);
             Assert.hasText(tokenUrl, msg);
             Assert.hasText(userInfoUrl, msg);
-            serviceProvider = new PayPalServiceProvider(appId, appSecret, scope, authUrl, tokenUrl, userInfoUrl, strictHostNameVerifier, disableLoginVariant);
+            serviceProvider = new PayPalServiceProvider(appId, appSecret, scope, authUrl, tokenUrl, userInfoUrl, strictHostNameVerifier);
         } else {
-            serviceProvider = new PayPalServiceProvider(appId, appSecret, scope, strictHostNameVerifier, disableLoginVariant);
+            serviceProvider = new PayPalServiceProvider(appId, appSecret, scope, strictHostNameVerifier);
         }
         factory = new PayPalConnectionFactory(serviceProvider);
         return factory;
@@ -153,16 +148,4 @@ public class PayPalConnectionFactoryBuilder {
         this.strictHostNameVerifier = isStrict;
         return this;
     }
-
-    /**
-     * Disables Log In Variant Screen
-     *
-     * @param disableLoginVariant
-     * @return - {@link PayPalConnectionFactoryBuilder}
-     */
-    public PayPalConnectionFactoryBuilder hasLogInVariant(boolean disableLoginVariant) {
-        this.disableLoginVariant = disableLoginVariant;
-        return this;
-    }
-
 }

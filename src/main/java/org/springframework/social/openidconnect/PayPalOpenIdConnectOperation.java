@@ -1,9 +1,5 @@
 package org.springframework.social.openidconnect;
 
-import java.io.UnsupportedEncodingException;
-import java.util.Map;
-import java.util.Random;
-
 import org.apache.log4j.Logger;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.social.oauth2.AccessGrant;
@@ -12,6 +8,10 @@ import org.springframework.social.oauth2.OAuth2Parameters;
 import org.springframework.social.oauth2.OAuth2Template;
 import org.springframework.social.openidconnect.support.OpenIdAccessGrant;
 import org.springframework.util.Assert;
+
+import java.io.UnsupportedEncodingException;
+import java.util.Map;
+import java.util.Random;
 
 /**
  * Implements an OAuth facility for PayPal with the predefined API URLs.
@@ -28,9 +28,6 @@ public class PayPalOpenIdConnectOperation extends OAuth2Template {
      */
     private String scope;
 
-    private boolean disableLoginVariant;
-
-
     /**
      * Sets up Template to connect PayPal Access.
      * 
@@ -38,13 +35,11 @@ public class PayPalOpenIdConnectOperation extends OAuth2Template {
      * @param clientSecret - Provided by developer portal when you register your application.
      * @param scope - List with scopes
      * @param isStrict -   Flag which determines Host name verifier
-     * @param disableLoginVariant - Disables "Not You" screen
      */
-    public PayPalOpenIdConnectOperation(String clientId, String clientSecret, String scope, boolean isStrict, boolean disableLoginVariant) {
+    public PayPalOpenIdConnectOperation(String clientId, String clientSecret, String scope, boolean isStrict) {
         super(clientId, clientSecret, PayPalConnectionProperties.getAuthorizeEndpoint(), PayPalConnectionProperties
                 .getTokenEndpoint());
         this.scope = scope;
-        this.disableLoginVariant = disableLoginVariant;
         //Override request factory after rest template has been initialized
         setRequestFactory(HttpClientFactory.getRequestFactory(isStrict));
 
@@ -60,13 +55,11 @@ public class PayPalOpenIdConnectOperation extends OAuth2Template {
      * @param scope - List with scopes
      * @param tokenEndPoint - PayPal Access token end point.
      * @param isStrict -   Flag which determines Host name verifier
-     * @param disableLoginVariant - Disables "Not You" screen
      */
     public PayPalOpenIdConnectOperation(String clientId, String clientSecret, String scope, String authorizeEndPoint,
-            String tokenEndPoint, boolean isStrict, boolean disableLoginVariant) {
+            String tokenEndPoint, boolean isStrict) {
         super(clientId, clientSecret, authorizeEndPoint, tokenEndPoint);
         this.scope = scope;
-        this.disableLoginVariant = disableLoginVariant;
         //Override request factory after rest template has been initialized
         setRequestFactory(HttpClientFactory.getRequestFactory(isStrict));
     }
@@ -128,10 +121,6 @@ public class PayPalOpenIdConnectOperation extends OAuth2Template {
         Assert.hasText(scope, "scope cannot be null or empty");
         parameters.setScope(scope);
         parameters.add("nonce", createNonce());
-        //skips 'Not You' Screen
-        if(this.disableLoginVariant){
-            parameters.add("prompt", "skip_select_account");
-        }
         return parameters;
     }
 
