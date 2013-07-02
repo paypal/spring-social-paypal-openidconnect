@@ -5,7 +5,7 @@
 	<artifactId>spring-social-paypal</artifactId>
 	<version>1.0.12.RELEASE</version>
 	<name>Spring Social PayPal for OpenId Connect</name>
-	<description>Extends Spring Social core API to add support for openid connect</description>
+	<description>Extends Spring Social core API to add support for openid connect specification</description>
 	<packaging>jar</packaging>
 
 	<properties>
