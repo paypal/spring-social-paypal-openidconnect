@@ -1,17 +1,27 @@
 package org.springframework.social.openidconnect;
 
 import org.apache.log4j.Logger;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.FormHttpMessageConverter;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.social.oauth2.AccessGrant;
 import org.springframework.social.oauth2.GrantType;
 import org.springframework.social.oauth2.OAuth2Parameters;
 import org.springframework.social.oauth2.OAuth2Template;
 import org.springframework.social.openidconnect.support.OpenIdAccessGrant;
+import org.springframework.social.support.ClientHttpRequestFactorySelector;
+import org.springframework.util.MultiValueMap;
 import org.springframework.util.Assert;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Collections;
 
 /**
  * Implements an OAuth facility for PayPal with the predefined API URLs.
@@ -109,6 +119,29 @@ public class PayPalOpenIdConnectOperation extends OAuth2Template {
         }
         return authorizeUrl;
     }
+	
+	@Override
+	protected RestTemplate createRestTemplate() {
+		RestTemplate restTemplate = new RestTemplate(ClientHttpRequestFactorySelector.getRequestFactory());
+		FormHttpMessageConverter formMessageConverter = new FormHttpMessageConverter() {
+			public boolean canRead(Class<?> clazz, MediaType mediaType) {
+				if(mediaType != null && mediaType.compareTo(MediaType.APPLICATION_JSON)==0){
+					return false;
+				}
+				// always read non-json as x-www-url-formencoded even though PayPal sets contentType to text/plain				
+				return true;
+			}
+		};
+		
+		MappingJackson2HttpMessageConverter jsonConverter = new MappingJackson2HttpMessageConverter();
+		
+		List<HttpMessageConverter<?>> converters = new ArrayList<HttpMessageConverter<?>>();
+		converters.add(formMessageConverter);
+		converters.add(jsonConverter);
+		
+		restTemplate.setMessageConverters(converters);
+		return restTemplate;
+	}
 
     /**
      * Sets parameters for request.

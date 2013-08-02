@@ -1,11 +1,17 @@
 package org.springframework.social.openidconnect.api.impl;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Iterator;
 
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.log4j.Logger;
 import org.springframework.beans.BeanUtils;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.FormHttpMessageConverter;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -18,6 +24,8 @@ import org.springframework.social.openidconnect.api.PayPalProfile;
 import org.springframework.social.support.URIBuilder;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.Collections;
 
 /**
  * Templates which binds provider to spring social API. This template is also used to get {@code PayPalProfile} from
@@ -97,6 +105,28 @@ public class PayPalTemplate extends AbstractOAuth2ApiBinding implements PayPal {
         }
         return profile;
     }
+	
+	@Override
+	protected void configureRestTemplate(RestTemplate restTemplate) {
+		super.configureRestTemplate(restTemplate);
+		FormHttpMessageConverter formMessageConverter = new FormHttpMessageConverter() {
+			public boolean canRead(Class<?> clazz, MediaType mediaType) {
+				if(mediaType == null || mediaType.compareTo(MediaType.APPLICATION_JSON)==0){
+					return false;
+				}
+				// always read non-json as x-www-url-formencoded even though PayPal sets contentType to text/plain				
+				return true;
+			}
+		};
+		
+		MappingJackson2HttpMessageConverter jsonConverter = new MappingJackson2HttpMessageConverter();
+		
+		List<HttpMessageConverter<?>> converters = new ArrayList<HttpMessageConverter<?>>();
+		converters.add(jsonConverter);
+		converters.add(formMessageConverter);
+		
+		restTemplate.setMessageConverters(converters);
+	}
 
     /**
      * Builds uri for user info service endpoint. Default one given by {@linkplain PayPalConnectionProperties} will be
