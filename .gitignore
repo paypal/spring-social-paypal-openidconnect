@@ -1,4 +1,5 @@
 .DS_Store
+ws
 *Db.properties
 *Db.script
 .settings
