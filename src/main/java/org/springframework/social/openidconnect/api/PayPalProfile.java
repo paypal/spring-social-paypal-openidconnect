@@ -3,9 +3,8 @@ package org.springframework.social.openidconnect.api;
 import java.io.Serializable;
 import java.util.Date;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * <p>
@@ -14,7 +13,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
  * Note: This has to be adapted according to the scope you are providing.
  * 
  */
-@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonIgnoreProperties(ignoreUnknown=true,value={"password"})
 public class PayPalProfile implements Serializable {
 
     /**
@@ -79,7 +78,6 @@ public class PayPalProfile implements Serializable {
     /**
      * Password is not returned by PayPal Access. Mainly here to satisfy Spring Security requirements
      */
-    @JsonIgnore
     private String password;
 
     /**
