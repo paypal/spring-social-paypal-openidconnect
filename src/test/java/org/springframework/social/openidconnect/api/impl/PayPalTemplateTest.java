@@ -3,9 +3,10 @@ package org.springframework.social.openidconnect.api.impl;
 import java.io.IOException;
 import java.io.InputStream;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import junit.framework.Assert;
 
-import org.codehaus.jackson.map.ObjectMapper;
+
 import org.junit.Test;
 import org.springframework.social.openidconnect.api.PayPalProfile;
 

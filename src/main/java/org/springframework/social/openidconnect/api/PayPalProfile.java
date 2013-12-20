@@ -145,6 +145,7 @@ public class PayPalProfile implements Serializable {
      * 
      * @return - last name
      */
+    @JsonProperty("family_name")
     public String getFamilyName() {
         return familyName;
     }
@@ -154,6 +155,7 @@ public class PayPalProfile implements Serializable {
      * 
      * @param familyName - Last name
      */
+    @JsonProperty("family_name")
     public void setFamilyName(String familyName) {
         this.familyName = familyName;
     }
