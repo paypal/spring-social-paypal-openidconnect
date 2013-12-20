@@ -13,6 +13,7 @@ package org.springframework.social.openidconnect.inmemory;
  * specific language governing permissions and limitations under the License.
  */
 
+import org.apache.log4j.Logger;
 import org.springframework.social.connect.ConnectionData;
 import org.springframework.social.connect.ConnectionKey;
 import org.springframework.social.connect.DuplicateConnectionException;
@@ -25,6 +26,11 @@ import java.util.*;
  * @author Michael Lavelle
  */
 public class InMemoryProviderConnectionRepository {
+    /**
+     * Logger for {@link InMemoryProviderConnectionRepository}
+     */
+    private static final Logger logger = Logger.getLogger(InMemoryProviderConnectionRepository.class);
+
 
     /**
      * Stores {@linkplain org.springframework.social.connect.ConnectionData} base don given rank
@@ -110,6 +116,10 @@ public class InMemoryProviderConnectionRepository {
                 rankOfMatchingConnectionData = connectionDataWithRank.getKey();
             }
         }
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Removing connectionData in map for providerUserId:"+providerUserId);
+        }
         if (rankOfMatchingConnectionData != null) {
             connectionDataByRank.remove(rankOfMatchingConnectionData);
         }
@@ -120,6 +130,10 @@ public class InMemoryProviderConnectionRepository {
      * Resets connection repository.
      */
     public void deleteAll() {
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Removing connectionData for all providers");
+        }
         connectionDataByRank = new TreeMap<Integer, ConnectionData>();
     }
 
@@ -130,10 +144,20 @@ public class InMemoryProviderConnectionRepository {
      * @param providerUserId
      */
     public void updateByProviderUserId(ConnectionData connection, String providerUserId) {
-        for (Map.Entry<Integer, ConnectionData> cd : connectionDataByRank.entrySet()) {
-            if (cd.getValue().getProviderUserId().equals(providerUserId)) {
-                connectionDataByRank.put(cd.getKey(), connection);
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("UpdateByProviderUserid for providerUserId:"+providerUserId);
+        }
+        try {
+            for (Map.Entry<Integer, ConnectionData> cd : connectionDataByRank.entrySet()) {
+                ConnectionData tempConnectionData = cd.getValue();
+                if (tempConnectionData.getProviderUserId().equals(providerUserId)) {
+                    connectionDataByRank.put(cd.getKey(), connection);
+                }
             }
+        } catch (Exception exc) {
+            logger.error("Exception thrown while updating connection data for providerUserId-" + providerUserId, exc);
+            throw new InMemoryDataAccessException("Exception thrown while updating connection data for providerUserId-" + providerUserId, exc);
         }
     }
 
@@ -165,6 +189,10 @@ public class InMemoryProviderConnectionRepository {
                 throw new DuplicateConnectionException(new ConnectionKey(connectionData.getProviderId(),
                         connectionData.getProviderUserId()));
             }
+        }
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Adding connectionData in map for providerUserId:"+connectionData.getProviderUserId());
         }
         connectionDataByRank.put(getNextRank(), connectionData);
 

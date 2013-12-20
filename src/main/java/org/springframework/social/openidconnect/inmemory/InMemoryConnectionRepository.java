@@ -13,6 +13,7 @@ package org.springframework.social.openidconnect.inmemory;
  * specific language governing permissions and limitations under the License.
  */
 
+import org.apache.log4j.Logger;
 import org.springframework.social.connect.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -26,6 +27,10 @@ import java.util.Map.Entry;
  * @author Michael Lavelle
  */
 public class InMemoryConnectionRepository implements ConnectionRepository {
+    /**
+     * Logger for {@link InMemoryConnectionRepository}
+     */
+    private static final Logger logger = Logger.getLogger(InMemoryConnectionRepository.class);
 
     /**
      * user identifier

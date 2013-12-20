@@ -1,5 +1,6 @@
 package org.springframework.social.openidconnect;
 
+import org.apache.log4j.Logger;
 import org.springframework.social.ApiException;
 import org.springframework.social.connect.ApiAdapter;
 import org.springframework.social.connect.ConnectionValues;
@@ -18,6 +19,11 @@ import org.springframework.social.openidconnect.api.PayPalProfile;
  */
 public class PayPalAdapter implements ApiAdapter<PayPal> {
 
+    /**
+     * Logger for {@link PayPalAdapter}
+     */
+    private static final Logger logger = Logger.getLogger(PayPalAdapter.class);
+
     /*
      * (non-Javadoc)
      * 
@@ -26,6 +32,9 @@ public class PayPalAdapter implements ApiAdapter<PayPal> {
     @Override
     public UserProfile fetchUserProfile(PayPal paypal) {
         PayPalProfile profile = paypal.getUserProfile();
+        if (logger.isDebugEnabled()) {
+            logger.debug("UserProfile fetched for userId:"+profile.getUserId());
+        }
         return new UserProfileBuilder().setUsername(profile.getUserId()).setEmail(profile.getEmail())
                 .setFirstName(profile.getGivenName()).setLastName(profile.getFamilyName()).build();
     }
@@ -39,6 +48,9 @@ public class PayPalAdapter implements ApiAdapter<PayPal> {
     @Override
     public void setConnectionValues(PayPal paypal, ConnectionValues values) {
         PayPalProfile profile = paypal.getUserProfile();
+        if (logger.isDebugEnabled()) {
+            logger.debug("ConnectionValues set for userId:"+profile.getUserId());
+        }
         values.setProviderUserId(profile.getUserId());
         values.setDisplayName(profile.getName());
     }
