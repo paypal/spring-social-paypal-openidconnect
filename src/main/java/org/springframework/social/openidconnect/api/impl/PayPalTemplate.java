@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Iterator;
 
 import org.apache.commons.beanutils.BeanMap;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.springframework.beans.BeanUtils;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.FormHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -18,6 +18,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.social.oauth2.AbstractOAuth2ApiBinding;
 import org.springframework.social.openidconnect.HttpClientFactory;
+import org.springframework.social.openidconnect.PayPalAccessException;
 import org.springframework.social.openidconnect.PayPalConnectionProperties;
 import org.springframework.social.openidconnect.api.PayPal;
 import org.springframework.social.openidconnect.api.PayPalProfile;
@@ -25,7 +26,6 @@ import org.springframework.social.support.URIBuilder;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Collections;
 
 /**
  * Templates which binds provider to spring social API. This template is also used to get {@code PayPalProfile} from
@@ -100,13 +100,34 @@ public class PayPalTemplate extends AbstractOAuth2ApiBinding implements PayPal {
                     logger.info(property + " -> " + value);
                 }
             }
+
+            validatePayPalAccessResponse(profile);
+
           } catch (HttpClientErrorException ex){
             logger.error("User info could not be retrieved " + ex.getMessage() + "  " + ex.getResponseBodyAsString());
         }
         return profile;
     }
-	
-	@Override
+
+    /*
+     * This validation is required to check mandatory field/s being returned by PPAccess or not.
+     * If not returned then this api will not do any processing and spit exception.
+     * :TODO We could have use @JSonproperty- required=true to check null, but
+     * since fasterxml's version 2.0 onwards, RequiredProperty field of jsonproperty
+     * is not working while deserializing, current latest
+     * fasterxml version 2.3.4 also doesn't support.
+     * there is github issue link @
+     * https://github.com/FasterXML/jackson-databind/issues/230
+     *
+     */
+    private void validatePayPalAccessResponse(PayPalProfile profile) {
+        if (StringUtils.isEmpty(profile.getUserId())) {
+            logger.error("user_id is coming as null from PPAccess response");
+              throw new PayPalAccessException("user_id is coming as null from PPAccess response", new NullPointerException());
+        }
+    }
+
+    @Override
 	protected void configureRestTemplate(RestTemplate restTemplate) {
 		super.configureRestTemplate(restTemplate);
 		FormHttpMessageConverter formMessageConverter = new FormHttpMessageConverter() {
