@@ -125,10 +125,8 @@ public class PayPalOpenIdConnectOperation extends OAuth2Template {
         RestTemplate restTemplate = new RestTemplate(ClientHttpRequestFactorySelector.getRequestFactory());
         FormHttpMessageConverter formMessageConverter = new FormHttpMessageConverter() {
             public boolean canRead(Class<?> clazz, MediaType mediaType) {
-                if (mediaType != null) {
-                    if (mediaType.includes(MediaType.APPLICATION_JSON)) {
+                if (mediaType != null && mediaType.includes(MediaType.APPLICATION_JSON)) {
                         return false;
-                    }
                 }
                 // always read non-json as x-www-url-formencoded even though PayPal sets contentType to text/plain
                 return true;
