@@ -40,11 +40,11 @@ public class PayPalOpenIdConnectOperation extends OAuth2Template {
 
     /**
      * Sets up Template to connect PayPal Access.
-     * 
-     * @param clientId - Provided by developer portal when you register your application.
+     *
+     * @param clientId     - Provided by developer portal when you register your application.
      * @param clientSecret - Provided by developer portal when you register your application.
-     * @param scope - List with scopes
-     * @param isStrict -   Flag which determines Host name verifier
+     * @param scope        - List with scopes
+     * @param isStrict     -   Flag which determines Host name verifier
      */
     public PayPalOpenIdConnectOperation(String clientId, String clientSecret, String scope, boolean isStrict) {
         super(clientId, clientSecret, PayPalConnectionProperties.getAuthorizeEndpoint(), PayPalConnectionProperties
@@ -58,16 +58,16 @@ public class PayPalOpenIdConnectOperation extends OAuth2Template {
     /**
      * Sets up Template to connect PayPal Access using injected authorize endpoint and token endpoint. Use this if you
      * do not want to use default endpoint values.
-     * 
-     * @param clientId - Provided by developer portal when you register your application.
-     * @param clientSecret - Provided by developer portal when you register your application.
+     *
+     * @param clientId          - Provided by developer portal when you register your application.
+     * @param clientSecret      - Provided by developer portal when you register your application.
      * @param authorizeEndPoint - PayPal Access authorize end point.
-     * @param scope - List with scopes
-     * @param tokenEndPoint - PayPal Access token end point.
-     * @param isStrict -   Flag which determines Host name verifier
+     * @param scope             - List with scopes
+     * @param tokenEndPoint     - PayPal Access token end point.
+     * @param isStrict          -   Flag which determines Host name verifier
      */
     public PayPalOpenIdConnectOperation(String clientId, String clientSecret, String scope, String authorizeEndPoint,
-            String tokenEndPoint, boolean isStrict) {
+                                        String tokenEndPoint, boolean isStrict) {
         super(clientId, clientSecret, authorizeEndPoint, tokenEndPoint);
         this.scope = scope;
         //Override request factory after rest template has been initialized
@@ -99,7 +99,7 @@ public class PayPalOpenIdConnectOperation extends OAuth2Template {
     @Override
     public String buildAuthenticateUrl(GrantType grantType, OAuth2Parameters parameters) {
         String authenticateUrl = super.buildAuthenticateUrl(grantType, getRequestParameters(parameters));
-        if(logger.isDebugEnabled()){
+        if (logger.isDebugEnabled()) {
             logger.debug("Authenticate url:" + authenticateUrl);
         }
         return authenticateUrl;
@@ -114,41 +114,42 @@ public class PayPalOpenIdConnectOperation extends OAuth2Template {
     @Override
     public String buildAuthorizeUrl(GrantType grantType, OAuth2Parameters parameters) {
         String authorizeUrl = super.buildAuthorizeUrl(grantType, getRequestParameters(parameters));
-        if(logger.isDebugEnabled()){
+        if (logger.isDebugEnabled()) {
             logger.debug("Authorize url:" + authorizeUrl);
         }
         return authorizeUrl;
     }
-	
-	@Override
-	protected RestTemplate createRestTemplate() {
-		RestTemplate restTemplate = new RestTemplate(ClientHttpRequestFactorySelector.getRequestFactory());
-		FormHttpMessageConverter formMessageConverter = new FormHttpMessageConverter() {
-			public boolean canRead(Class<?> clazz, MediaType mediaType) {
-				if(mediaType != null && mediaType.compareTo(MediaType.APPLICATION_JSON)==0){
-					return false;
-				}
-				// always read non-json as x-www-url-formencoded even though PayPal sets contentType to text/plain				
-				return true;
-			}
-		};
-		
-		MappingJackson2HttpMessageConverter jsonConverter = new MappingJackson2HttpMessageConverter();
-		
-		List<HttpMessageConverter<?>> converters = new ArrayList<HttpMessageConverter<?>>();
-		converters.add(formMessageConverter);
-		converters.add(jsonConverter);
-		
-		restTemplate.setMessageConverters(converters);
-		return restTemplate;
-	}
+
+    @Override
+    protected RestTemplate createRestTemplate() {
+        RestTemplate restTemplate = new RestTemplate(ClientHttpRequestFactorySelector.getRequestFactory());
+        FormHttpMessageConverter formMessageConverter = new FormHttpMessageConverter() {
+            public boolean canRead(Class<?> clazz, MediaType mediaType) {
+                if (mediaType != null) {
+                    if (mediaType.includes(MediaType.APPLICATION_JSON)) {
+                        return false;
+                    }
+                }
+                // always read non-json as x-www-url-formencoded even though PayPal sets contentType to text/plain
+                return true;
+            }
+        };
+
+        MappingJackson2HttpMessageConverter jsonConverter = new MappingJackson2HttpMessageConverter();
+
+        List<HttpMessageConverter<?>> converters = new ArrayList<HttpMessageConverter<?>>();
+        converters.add(formMessageConverter);
+        converters.add(jsonConverter);
+
+        restTemplate.setMessageConverters(converters);
+        return restTemplate;
+    }
 
     /**
      * Sets parameters for request.
-     * 
+     *
      * @param parameters - parametes which are included in request
      * @return - Filled up parameters.
-     * 
      */
     private OAuth2Parameters getRequestParameters(OAuth2Parameters parameters) {
         Assert.hasText(scope, "scope cannot be null or empty");
@@ -159,7 +160,7 @@ public class PayPalOpenIdConnectOperation extends OAuth2Template {
 
     /**
      * Generates a unique nonce for every request. Created this way based on recommendation from PayPal Access team.
-     * 
+     *
      * @return - generated nonce
      */
     private String createNonce() {
