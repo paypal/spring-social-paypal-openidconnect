@@ -37,6 +37,9 @@ public class PayPalOpenIdConnectOperation extends OAuth2Template {
      * Scope to be included in auth request.
      */
     private String scope;
+    
+    private String clientId;
+    private String clientSecret;
 
     /**
      * Sets up Template to connect PayPal Access.
@@ -49,6 +52,9 @@ public class PayPalOpenIdConnectOperation extends OAuth2Template {
     public PayPalOpenIdConnectOperation(String clientId, String clientSecret, String scope, boolean isStrict) {
         super(clientId, clientSecret, PayPalConnectionProperties.getAuthorizeEndpoint(), PayPalConnectionProperties
                 .getTokenEndpoint());
+        this.setUseParametersForClientAuthentication(false);
+        this.clientId = clientId;
+        this.clientSecret = clientSecret;
         this.scope = scope;
         //Override request factory after rest template has been initialized
         setRequestFactory(HttpClientFactory.getRequestFactory(isStrict));
@@ -70,6 +76,9 @@ public class PayPalOpenIdConnectOperation extends OAuth2Template {
                                         String tokenEndPoint, boolean isStrict) {
         super(clientId, clientSecret, authorizeEndPoint, tokenEndPoint);
         this.scope = scope;
+        this.setUseParametersForClientAuthentication(false);
+        this.clientId = clientId;
+        this.clientSecret = clientSecret;
         //Override request factory after rest template has been initialized
         setRequestFactory(HttpClientFactory.getRequestFactory(isStrict));
     }
@@ -86,7 +95,7 @@ public class PayPalOpenIdConnectOperation extends OAuth2Template {
      * @return an {@link org.springframework.social.oauth2.AccessGrant}
      */
     @Override
-    protected AccessGrant createAccessGrant(String accessToken, String scope, String refreshToken, Integer expiresIn, Map<String, Object> response) {
+    protected AccessGrant createAccessGrant	(String accessToken, String scope, String refreshToken, Long expiresIn, Map<String, Object> response) {
         return new OpenIdAccessGrant(accessToken, scope, refreshToken, expiresIn, (String) response.get("id_token"));
     }
 
@@ -140,6 +149,7 @@ public class PayPalOpenIdConnectOperation extends OAuth2Template {
         converters.add(jsonConverter);
 
         restTemplate.setMessageConverters(converters);
+        restTemplate.getInterceptors().add(new PreemptiveBasicAuthClientHttpRequestInterceptor(clientId, clientSecret));
         return restTemplate;
     }
 

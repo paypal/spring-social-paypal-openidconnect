@@ -18,7 +18,7 @@ public class OpenIdAccessGrant extends AccessGrant {
          super(accessToken);
     }
 
-    public OpenIdAccessGrant(String accessToken, String scope, String refreshToken, Integer expiresIn, String idToken) {
+    public OpenIdAccessGrant(String accessToken, String scope, String refreshToken, Long expiresIn, String idToken) {
           super(accessToken, scope, refreshToken, expiresIn);
           this.idToken = idToken;
     }
