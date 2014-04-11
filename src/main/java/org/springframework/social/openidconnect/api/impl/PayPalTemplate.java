@@ -9,6 +9,7 @@ import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.converter.FormHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -16,6 +17,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.codec.Base64;
 import org.springframework.social.oauth2.AbstractOAuth2ApiBinding;
 import org.springframework.social.openidconnect.HttpClientFactory;
 import org.springframework.social.openidconnect.PayPalAccessException;
@@ -85,11 +87,18 @@ public class PayPalTemplate extends AbstractOAuth2ApiBinding implements PayPal {
      */
     @Override
     public PayPalProfile getUserProfile() {
-        PayPalProfile profile = null;
-        try {
-            ResponseEntity<PayPalProfile> jsonResponse = getRestTemplate().exchange(buildURI(accessToken), HttpMethod.GET,
-                    new HttpEntity<byte[]>(null,null), PayPalProfile.class);
-            profile = jsonResponse.getBody();
+        HttpHeaders headers = new HttpHeaders();
+		String authorisation = appId + ":" + appSecret;
+		byte[] encodedAuthorisation = Base64.encode(authorisation.getBytes());
+		headers.add("Authorization", "Basic "
+				+ new String(encodedAuthorisation));
+		PayPalProfile profile = null;
+		RestTemplate restTemplate = getRestTemplate();
+		try {
+			ResponseEntity<PayPalProfile> jsonResponse = restTemplate.exchange(
+					buildURI(accessToken), HttpMethod.GET,
+					new HttpEntity<byte[]>(headers), PayPalProfile.class);
+			profile = jsonResponse.getBody();
             // Password cannot be blank for Spring security. Setting it to access token rather keeping it as "N/A".
             profile.setPassword(this.accessToken);
 
@@ -149,7 +158,7 @@ public class PayPalTemplate extends AbstractOAuth2ApiBinding implements PayPal {
 		converters.add(formMessageConverter);
 		
 		restTemplate.setMessageConverters(converters);
-		restTemplate.getInterceptors().add(new PreemptiveBasicAuthClientHttpRequestInterceptor(appId, appSecret));
+//		restTemplate.getInterceptors().add(new PreemptiveBasicAuthClientHttpRequestInterceptor(appId, appSecret));
 	}
 
     /**
