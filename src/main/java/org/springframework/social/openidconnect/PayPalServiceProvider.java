@@ -15,6 +15,9 @@ public class PayPalServiceProvider extends AbstractOAuth2ServiceProvider<PayPal>
     private String userInfoUrl;
 
     private boolean isStrict;
+    
+    private String appId;
+    private String appSecret;
 
     /**
      * Creates a new instance of {@linkplain PayPalOpenIdConnectOperation} and passes it to superclass.
@@ -26,6 +29,8 @@ public class PayPalServiceProvider extends AbstractOAuth2ServiceProvider<PayPal>
      */
     public PayPalServiceProvider(String appId, String appSecret, String scope, boolean isStrict) {
         super(new PayPalOpenIdConnectOperation(appId, appSecret, scope, isStrict));
+        this.appId = appId;
+        this.appSecret = appSecret;
         this.isStrict = isStrict;
     }
 
@@ -43,13 +48,18 @@ public class PayPalServiceProvider extends AbstractOAuth2ServiceProvider<PayPal>
     public PayPalServiceProvider(String appId, String appSecret, String scope, String authorizeEndPoint,
             String tokenServiceEndPoint, String userInfoEndPoint, boolean isStrict) {
         super(new PayPalOpenIdConnectOperation(appId, appSecret, scope, authorizeEndPoint, tokenServiceEndPoint, isStrict));
+        this.appId = appId;
+        this.appSecret = appSecret;
         this.userInfoUrl = userInfoEndPoint;
         this.isStrict = isStrict;
     }
 
     @Override
     public PayPal getApi(String accessToken) {
-        return new PayPalTemplate(accessToken, userInfoUrl, isStrict);
+        PayPalTemplate template = new PayPalTemplate(accessToken, userInfoUrl, isStrict);
+        template.setAppId(appId);
+        template.setAppSecret(appSecret);
+		return template;
     }
 
 }

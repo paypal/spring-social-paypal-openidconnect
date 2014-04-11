@@ -13,6 +13,6 @@ public class PayPalAccessException extends ApiException {
      * @param exception - Exception itself.
      */
     public PayPalAccessException(String message, Exception exception){
-        super(message, exception);
+        super("paypal",message, exception);
     }
 }

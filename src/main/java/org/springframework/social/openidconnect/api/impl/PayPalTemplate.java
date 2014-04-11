@@ -9,6 +9,7 @@ import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.converter.FormHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -16,10 +17,12 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.codec.Base64;
 import org.springframework.social.oauth2.AbstractOAuth2ApiBinding;
 import org.springframework.social.openidconnect.HttpClientFactory;
 import org.springframework.social.openidconnect.PayPalAccessException;
 import org.springframework.social.openidconnect.PayPalConnectionProperties;
+import org.springframework.social.openidconnect.PreemptiveBasicAuthClientHttpRequestInterceptor;
 import org.springframework.social.openidconnect.api.PayPal;
 import org.springframework.social.openidconnect.api.PayPalProfile;
 import org.springframework.social.support.URIBuilder;
@@ -47,6 +50,9 @@ public class PayPalTemplate extends AbstractOAuth2ApiBinding implements PayPal {
      * User Info end point.
      */
     private String userInfoUrl;
+    
+    private String appId;
+	private String appSecret;
 
 
     /**
@@ -82,12 +88,17 @@ public class PayPalTemplate extends AbstractOAuth2ApiBinding implements PayPal {
     @Override
     public PayPalProfile getUserProfile() {
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", this.accessToken);
-        PayPalProfile profile = null;
-        try {
-            ResponseEntity<PayPalProfile> jsonResponse = getRestTemplate().exchange(buildURI(), HttpMethod.GET,
-                    new HttpEntity<byte[]>(headers), PayPalProfile.class);
-            profile = jsonResponse.getBody();
+		String authorisation = appId + ":" + appSecret;
+		byte[] encodedAuthorisation = Base64.encode(authorisation.getBytes());
+		headers.add("Authorization", "Basic "
+				+ new String(encodedAuthorisation));
+		PayPalProfile profile = null;
+		RestTemplate restTemplate = getRestTemplate();
+		try {
+			ResponseEntity<PayPalProfile> jsonResponse = restTemplate.exchange(
+					buildURI(accessToken), HttpMethod.GET,
+					new HttpEntity<byte[]>(headers), PayPalProfile.class);
+			profile = jsonResponse.getBody();
             // Password cannot be blank for Spring security. Setting it to access token rather keeping it as "N/A".
             profile.setPassword(this.accessToken);
 
@@ -147,6 +158,7 @@ public class PayPalTemplate extends AbstractOAuth2ApiBinding implements PayPal {
 		converters.add(formMessageConverter);
 		
 		restTemplate.setMessageConverters(converters);
+//		restTemplate.getInterceptors().add(new PreemptiveBasicAuthClientHttpRequestInterceptor(appId, appSecret));
 	}
 
     /**
@@ -155,7 +167,7 @@ public class PayPalTemplate extends AbstractOAuth2ApiBinding implements PayPal {
      * 
      * @return - Uri with parameter
      */
-    private URI buildURI() {
+    private URI buildURI(String accesToken) {
         URIBuilder uriBuilder;
         if (userInfoUrl == null) {
             if (logger.isDebugEnabled()) {
@@ -165,7 +177,7 @@ public class PayPalTemplate extends AbstractOAuth2ApiBinding implements PayPal {
         } else {
             uriBuilder = URIBuilder.fromUri(this.userInfoUrl);
         }
-        URI returnURI = uriBuilder.queryParam("schema", "openid").build();
+        URI returnURI = uriBuilder.queryParam("schema", "openid").queryParam("code", accessToken).build();
         if(logger.isInfoEnabled()){
             logger.info("User info uri " + returnURI.toString());
         }
@@ -189,4 +201,20 @@ public class PayPalTemplate extends AbstractOAuth2ApiBinding implements PayPal {
     public void setUserInfoUrl(String userInfoUrl) {
         this.userInfoUrl = userInfoUrl;
     }
+    
+    public String getAppId() {
+		return appId;
+	}
+
+	public void setAppId(String appId) {
+		this.appId = appId;
+	}
+
+	public String getAppSecret() {
+		return appSecret;
+	}
+
+	public void setAppSecret(String appSecret) {
+		this.appSecret = appSecret;
+	}
 }

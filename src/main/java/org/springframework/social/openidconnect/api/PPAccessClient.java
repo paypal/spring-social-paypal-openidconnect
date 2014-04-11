@@ -10,9 +10,10 @@ import java.net.URL;
 import java.util.Map;
 import java.util.Random;
 
-import org.codehaus.jackson.map.ObjectMapper;
+import org.apache.commons.codec.binary.Base64;
 
-import sun.misc.BASE64Encoder;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Client implementation to get user information using PayPal Access. First step of getting code from PayPal access has
@@ -157,8 +158,7 @@ public class PPAccessClient {
         String clientSecret = "c540d4fc884ad659";
 
         String authString = clientId + ":" + clientSecret;
-        BASE64Encoder encoder = new BASE64Encoder();
-        return encoder.encode(authString.getBytes());
+        return Base64.encodeBase64String(authString.getBytes());
     }
 
     /**
@@ -173,8 +173,7 @@ public class PPAccessClient {
         byte[] randomByte = {Integer.valueOf(randomInt).byteValue()};
         String encodedValue;
         String retValue;
-        BASE64Encoder encoder = new BASE64Encoder();
-        encodedValue = encoder.encode(randomByte);
+        encodedValue = Base64.encodeBase64String(randomByte);
         retValue = (System.currentTimeMillis() + encodedValue);
         return retValue;
 

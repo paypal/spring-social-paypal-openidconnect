@@ -13,6 +13,6 @@ public class InMemoryDataAccessException extends ApiException {
      * @param exception - Exception itself.
      */
     public InMemoryDataAccessException(String message, Exception exception){
-        super(message, exception);
+        super("paypal",message, exception);
     }
 }

@@ -47,7 +47,14 @@ public class PayPalConnectionFactory extends OAuth2ConnectionFactory<PayPal> {
      */
     @Override
     public Connection<PayPal> createConnection(ConnectionData data) {
-        OpenIdConnectionData connectionData = (OpenIdConnectionData) data;
-        return new OpenIdConnection<PayPal>(connectionData, this.serviceProvider, getApiAdapter());
+    	OpenIdConnectionData connectionData = null;
+    	if(data instanceof OpenIdConnectionData) {
+    		connectionData = (OpenIdConnectionData) data;
+    	} else {
+    		connectionData = new OpenIdConnectionData(data.getProviderId(), data.getProviderUserId(),
+    				data.getDisplayName(), data.getProfileUrl(), data.getImageUrl(), data.getAccessToken(), data.getSecret(),
+    				data.getRefreshToken(), data.getExpireTime(), null);
+    	}
+    	return new OpenIdConnection<PayPal>(connectionData, this.serviceProvider, getApiAdapter());
     }
 }
