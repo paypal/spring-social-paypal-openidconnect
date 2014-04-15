@@ -136,6 +136,13 @@
 				</executions>
 			</plugin>
 		</plugins>
+		<extensions>
+			<extension>
+				<groupId>ar.com.synergian</groupId>
+				<artifactId>wagon-git</artifactId>
+				<version>0.2.3</version>
+			</extension>
+		</extensions>
 	</build>
 	<repositories>
 		<!-- For developing against latest Spring milestones -->
@@ -148,4 +155,22 @@
 			</snapshots>
 		</repository>
 	</repositories>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>synergian-repo</id>
+			<url>https://raw.github.com/synergian/wagon-git/releases</url>
+		</pluginRepository>
+	</pluginRepositories>
+	<distributionManagement>
+		<repository>
+			<id>banzai-bitbucket-release</id>
+			<name>Banzai bitbucket maven repository</name>
+			<url>git:releases://git@bitbucket.org:expertweb_modena/cribis-estero-2014-mvn-repos.git</url>
+		</repository>
+		<snapshotRepository>
+			<id>banzai-bitbucket-snapshots</id>
+			<name>Banzai bitbucket maven snapshots repository</name>
+			<url>git:snapshots://git@bitbucket.org:expertweb_modena/cribis-estero-2014-mvn-repos.git</url>
+		</snapshotRepository>
+	</distributionManagement>
 </project>
