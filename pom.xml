@@ -10,9 +10,9 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<org.springframework.social-version>1.1.0.RC1</org.springframework.social-version>
+		<org.springframework.social-version>1.1.0.RELEASE</org.springframework.social-version>
 		<org.springframework.security.version>3.2.0.RELEASE</org.springframework.security.version>
-		<org.springframework.version>4.0.2.RELEASE</org.springframework.version>
+		<org.springframework.version>4.0.3.RELEASE</org.springframework.version>
 		<jackson.version>2.3.1</jackson.version>
 	</properties>
 
@@ -136,41 +136,5 @@
 				</executions>
 			</plugin>
 		</plugins>
-		<extensions>
-			<extension>
-				<groupId>ar.com.synergian</groupId>
-				<artifactId>wagon-git</artifactId>
-				<version>0.2.3</version>
-			</extension>
-		</extensions>
 	</build>
-	<repositories>
-		<!-- For developing against latest Spring milestones -->
-		<repository>
-			<id>org.springframework.maven.milestone</id>
-			<name>Spring Maven Milestone Repository</name>
-			<url>http://maven.springframework.org/milestone</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-	</repositories>
-	<pluginRepositories>
-		<pluginRepository>
-			<id>synergian-repo</id>
-			<url>https://raw.github.com/synergian/wagon-git/releases</url>
-		</pluginRepository>
-	</pluginRepositories>
-	<distributionManagement>
-		<repository>
-			<id>banzai-bitbucket-release</id>
-			<name>Banzai bitbucket maven repository</name>
-			<url>git:releases://git@bitbucket.org:expertweb_modena/cribis-estero-2014-mvn-repos.git</url>
-		</repository>
-		<snapshotRepository>
-			<id>banzai-bitbucket-snapshots</id>
-			<name>Banzai bitbucket maven snapshots repository</name>
-			<url>git:snapshots://git@bitbucket.org:expertweb_modena/cribis-estero-2014-mvn-repos.git</url>
-		</snapshotRepository>
-	</distributionManagement>
 </project>
