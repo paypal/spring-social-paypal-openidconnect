@@ -10,9 +10,9 @@ import org.springframework.util.StringUtils;
 public class PayPalConnectionFactoryBuilder {
 
     /**
-     * AppId given by devportal while registration.
+     * ClientId given by devportal while registration.
      */
-    private String appId;
+    private String clientId;
 
     /**
      * AppSecret given by devportal while registration.
@@ -46,14 +46,14 @@ public class PayPalConnectionFactoryBuilder {
     private boolean strictHostNameVerifier = true;
 
     /**
-     * Builds a {@link PayPalConnectionFactory}. AppId, AppSecret and scope are mandatory values, hence asserts for the
+     * Builds a {@link PayPalConnectionFactory}. ClientId, AppSecret and scope are mandatory values, hence asserts for the
      * same. Other properteis are optional, but you need to set all 3 urls together. Assertion for that requirement is
      * done, only if one of the 3 urls are not null.
      * 
      * @return {@link PayPalConnectionFactory}
      */
     public PayPalConnectionFactory build() {
-        Assert.hasText(appId, "AppId is required");
+        Assert.hasText(clientId, "ClientId is required");
         Assert.hasText(appSecret, "AppSecret is required");
         Assert.hasText(scope, "Minimum scope is requried");
         PayPalConnectionFactory factory;
@@ -63,22 +63,22 @@ public class PayPalConnectionFactoryBuilder {
             Assert.hasText(authUrl, msg);
             Assert.hasText(tokenUrl, msg);
             Assert.hasText(userInfoUrl, msg);
-            serviceProvider = new PayPalServiceProvider(appId, appSecret, scope, authUrl, tokenUrl, userInfoUrl, strictHostNameVerifier);
+            serviceProvider = new PayPalServiceProvider(clientId, appSecret, scope, authUrl, tokenUrl, userInfoUrl, strictHostNameVerifier);
         } else {
-            serviceProvider = new PayPalServiceProvider(appId, appSecret, scope, strictHostNameVerifier);
+            serviceProvider = new PayPalServiceProvider(clientId, appSecret, scope, strictHostNameVerifier);
         }
         factory = new PayPalConnectionFactory(serviceProvider);
         return factory;
     }
 
     /**
-     * Sets App Id.
+     * Sets Client Id.
      * 
-     * @param appId - App Id
+     * @param clientId - Client Id
      * @return - {@link PayPalConnectionFactoryBuilder}
      */
-    public PayPalConnectionFactoryBuilder withAppId(String appId) {
-        this.appId = appId;
+    public PayPalConnectionFactoryBuilder withClientId(String clientId) {
+        this.clientId = clientId;
         return this;
     }
 

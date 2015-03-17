@@ -9,7 +9,6 @@ import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.http.MediaType;
-import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.converter.FormHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -22,7 +21,6 @@ import org.springframework.social.oauth2.AbstractOAuth2ApiBinding;
 import org.springframework.social.openidconnect.HttpClientFactory;
 import org.springframework.social.openidconnect.PayPalAccessException;
 import org.springframework.social.openidconnect.PayPalConnectionProperties;
-import org.springframework.social.openidconnect.PreemptiveBasicAuthClientHttpRequestInterceptor;
 import org.springframework.social.openidconnect.api.PayPal;
 import org.springframework.social.openidconnect.api.PayPalProfile;
 import org.springframework.social.support.URIBuilder;
@@ -51,7 +49,7 @@ public class PayPalTemplate extends AbstractOAuth2ApiBinding implements PayPal {
      */
     private String userInfoUrl;
     
-    private String appId;
+    private String clientId;
 	private String appSecret;
 
 
@@ -88,7 +86,7 @@ public class PayPalTemplate extends AbstractOAuth2ApiBinding implements PayPal {
     @Override
     public PayPalProfile getUserProfile() {
         HttpHeaders headers = new HttpHeaders();
-		String authorisation = appId + ":" + appSecret;
+		String authorisation = clientId + ":" + appSecret;
 		byte[] encodedAuthorisation = Base64.encode(authorisation.getBytes());
 		headers.add("Authorization", "Basic "
 				+ new String(encodedAuthorisation));
@@ -158,7 +156,7 @@ public class PayPalTemplate extends AbstractOAuth2ApiBinding implements PayPal {
 		converters.add(formMessageConverter);
 		
 		restTemplate.setMessageConverters(converters);
-//		restTemplate.getInterceptors().add(new PreemptiveBasicAuthClientHttpRequestInterceptor(appId, appSecret));
+//		restTemplate.getInterceptors().add(new PreemptiveBasicAuthClientHttpRequestInterceptor(clientId, appSecret));
 	}
 
     /**
@@ -202,12 +200,12 @@ public class PayPalTemplate extends AbstractOAuth2ApiBinding implements PayPal {
         this.userInfoUrl = userInfoUrl;
     }
     
-    public String getAppId() {
-		return appId;
+    public String getClientId() {
+		return clientId;
 	}
 
-	public void setAppId(String appId) {
-		this.appId = appId;
+	public void setClientId(String clientId) {
+		this.clientId = clientId;
 	}
 
 	public String getAppSecret() {
