@@ -22,7 +22,7 @@ Spring Social PayPal is a Spring Social extension that provides support for the 
 
 This spring social extension was developed following instructions given [here] (http://static.springsource.org/spring-social/docs/1.0.x/reference/html/implementing.html) 
 
-More information at on Login With PayPal can be found [here] (https://developer.paypal.com/webapps/developer/docs/classic/loginwithpaypal/gs_loginwithpaypal/)
+More information at on Login With PayPal can be found [here] (https://developer.paypal.com/webapps/developer/docs/integration/direct/identity/log-in-with-paypal/)
 
 Instructions on how to use this API https://github.com/paypal/spring-social-paypal-openidconnect/wiki/Quick-Start
 
