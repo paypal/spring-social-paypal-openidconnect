@@ -66,10 +66,10 @@ public final class HttpClientFactory {
      * @return - Client connection manager
      * @see org.apache.http.conn.ssl.X509HostnameVerifier
      */
-    public static ClientConnectionManager getPooledConnectionManager(boolean isStrict){
+    public static ClientConnectionManager getPooledConnectionManager(boolean isStrict, String tlsVersion){
         try {
             Scheme http = new Scheme("http", 80, PlainSocketFactory.getSocketFactory());
-            SSLContext sslcontext = SSLContext.getInstance("TLS");
+            SSLContext sslcontext = SSLContext.getInstance(tlsVersion);
             sslcontext.init(null, null, null);
 
             SSLSocketFactory sf = new SSLSocketFactory(sslcontext, getVerifier(isStrict));
@@ -92,6 +92,16 @@ public final class HttpClientFactory {
         }catch (Exception ex){
             logger.error("Exception thrown while configuring HttpConnectionFactory", ex);
             throw new PayPalAccessException("Not able to get HTTP Connection factory", ex);
+        }
+    }
+
+    public static ClientConnectionManager getPooledConnectionManager(boolean isStrict) {
+        double jVer = Double.parseDouble(System.getProperty("java.specification.version"));
+
+        if(jVer == 1.7) {
+            return getPooledConnectionManager(isStrict, "TLSv1.2");
+        } else {
+            return getPooledConnectionManager(isStrict, "TLS");
         }
     }
 
