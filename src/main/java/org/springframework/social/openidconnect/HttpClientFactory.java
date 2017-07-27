@@ -1,5 +1,6 @@
 package org.springframework.social.openidconnect;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.HttpClient;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.scheme.PlainSocketFactory;
@@ -66,10 +67,10 @@ public final class HttpClientFactory {
      * @return - Client connection manager
      * @see org.apache.http.conn.ssl.X509HostnameVerifier
      */
-    public static ClientConnectionManager getPooledConnectionManager(boolean isStrict, String tlsVersion){
+    public static ClientConnectionManager getPooledConnectionManager(boolean isStrict){
         try {
             Scheme http = new Scheme("http", 80, PlainSocketFactory.getSocketFactory());
-            SSLContext sslcontext = SSLContext.getInstance(tlsVersion);
+            SSLContext sslcontext = SSLContext.getInstance(getTlsVersion());
             sslcontext.init(null, null, null);
 
             SSLSocketFactory sf = new SSLSocketFactory(sslcontext, getVerifier(isStrict));
@@ -95,15 +96,6 @@ public final class HttpClientFactory {
         }
     }
 
-    public static ClientConnectionManager getPooledConnectionManager(boolean isStrict) {
-        double jVer = Double.parseDouble(System.getProperty("java.specification.version"));
-
-        if(jVer == 1.7) {
-            return getPooledConnectionManager(isStrict, "TLSv1.2");
-        } else {
-            return getPooledConnectionManager(isStrict, "TLS");
-        }
-    }
 
     /**
      * Gets HostName verifier
@@ -122,6 +114,26 @@ public final class HttpClientFactory {
             logger.info("Using Strict HostName verifier. isStrict = " + isStrict);
         }
         return SSLSocketFactory.STRICT_HOSTNAME_VERIFIER;
+    }
+
+    /**
+     * Gets the TLS version from jdk parameter.  Defaults to version 1.2 if not provided
+     * @return
+     */
+    public static String getTlsVersion() {
+        String tlsVer = System.getProperty("jdk.tls.client.protocols");
+
+        if(StringUtils.isEmpty(tlsVer)) {
+            double jVer = Double.parseDouble(System.getProperty("java.specification.version"));
+            if(jVer == 1.6) {
+                //java 6 doesn't support TLSv1.2
+                tlsVer = "TLS";
+            } else {
+                tlsVer = "TLSv1.2";
+            }
+        }
+
+        return tlsVer;
     }
 
 }

@@ -1,10 +1,10 @@
 package org.springframework.social.openidconnect.api.impl;
 
-
-import com.sun.jndi.toolkit.url.Uri;
 import junit.framework.Assert;
-import org.apache.http.HttpEntity;
+
 import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.pool.PoolEntry;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -14,10 +14,14 @@ import org.springframework.social.openidconnect.HttpClientFactory;
 import org.springframework.social.openidconnect.PayPalAccessException;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Proxy;
 import java.net.URI;
 
+
 /**
- * Tests whether TLS version parameter works
+ * Tests whether TLS version parameter works.  Tested by running under jdk 1.6 and 1.7
  */
 public class HttpClientFactoryTest {
     @Rule
@@ -25,40 +29,16 @@ public class HttpClientFactoryTest {
 
     private static final String TLSVER = "jdk.tls.client.protocols";
 
-    /**
-     * Test variations of passing or not passing TLS version
-     */
-    @Test
-    public void testTlsVersionSuccess() {
-        ClientConnectionManager cm = HttpClientFactory.getPooledConnectionManager(true);
-        Assert.assertEquals("https:443", cm.getSchemeRegistry().get("https").toString());
-        cm = HttpClientFactory.getPooledConnectionManager(false);
-        Assert.assertEquals("https:443", cm.getSchemeRegistry().get("https").toString());
-        cm = HttpClientFactory.getPooledConnectionManager(true, "TLS");
-        Assert.assertEquals("https:443", cm.getSchemeRegistry().get("https").toString());
-        cm = HttpClientFactory.getPooledConnectionManager(true, "TLSv1.2");
-        Assert.assertEquals("https:443", cm.getSchemeRegistry().get("https").toString());
+    private static final double javaVersion = Double.parseDouble(System.getProperty("java.specification.version"));
+
+    @Before
+    public void beforeEach() {
+        System.clearProperty(TLSVER);
     }
 
     /**
-     * Test passing bad TLS version
+     * Test reading/writing TLS version
      */
-    @Test
-    public void testTlsVersionException() {
-        exception.expect(PayPalAccessException.class);
-        ClientConnectionManager cm = HttpClientFactory.getPooledConnectionManager(true, "TLSvErrorTest");
-    }
-
-    @Test
-    public void testRequestFactory() throws IOException {
-        HttpComponentsClientHttpRequestFactory rf = HttpClientFactory.getRequestFactory(true);
-        Assert.assertNotNull(rf);
-        URI uri = URI.create("https://google.com");
-        ClientHttpRequest request = rf.createRequest(uri, HttpMethod.GET);
-        ClientHttpResponse response = request.execute();
-        Assert.assertNotNull(response);
-    }
-
     @Test
     public void testJdkTlsProperty() {
         String tlsProtocols = System.getProperty(TLSVER);
@@ -67,5 +47,138 @@ public class HttpClientFactoryTest {
         System.setProperty(TLSVER, "TLSv1.2");
         tlsProtocols = System.getProperty(TLSVER);
         Assert.assertEquals("TLSv1.2", tlsProtocols);
+    }
+
+    /**
+     * Test variations not passing TLS version
+     */
+    @Test
+    public void testNoTlsVersionSuccess() {
+        ClientConnectionManager cm = HttpClientFactory.getPooledConnectionManager(true);
+        Assert.assertEquals("https:443", cm.getSchemeRegistry().get("https").toString());
+        cm = HttpClientFactory.getPooledConnectionManager(false);
+        Assert.assertEquals("https:443", cm.getSchemeRegistry().get("https").toString());
+    }
+
+    /**
+     * Test variations of passing TLS version
+     */
+    @Test
+    public void testSetTlsVersionSuccess() {
+        System.setProperty(TLSVER, "TLS");
+        ClientConnectionManager cm = HttpClientFactory.getPooledConnectionManager(true);
+        Assert.assertEquals("https:443", cm.getSchemeRegistry().get("https").toString());
+
+        System.setProperty(TLSVER, "TLSv1.2");
+
+        if(javaVersion == 1.6) {
+            exception.expect(PayPalAccessException.class);
+        }
+        cm = HttpClientFactory.getPooledConnectionManager(true);
+        Assert.assertEquals("https:443", cm.getSchemeRegistry().get("https").toString());
+    }
+
+    /**
+     * Test passing bad TLS version
+     */
+    @Test
+    public void testTlsVersionException() {
+        System.setProperty(TLSVER, "TLSvErrorTest");
+        exception.expect(PayPalAccessException.class);
+        ClientConnectionManager cm = HttpClientFactory.getPooledConnectionManager(true);
+    }
+
+    /**
+     * Test making HTTP call and using default TLS version
+     * @throws IOException
+     */
+    @Test
+    public void testDefaultRequestFactory() throws IOException, NoSuchFieldException, IllegalAccessException {
+        Object protocolVersion = makeTestHttpsRequest();
+
+        if(javaVersion == 1.6) {
+            Assert.assertEquals("TLSv1", protocolVersion.toString());
+        } else {
+            //java 1.7 defaults to TLSv1 but we want 1.2
+            Assert.assertEquals("TLSv1.2", protocolVersion.toString());
+        }
+    }
+
+    /**
+     * Test making HTTP call and using TLSv1 overrides
+     * @throws IOException
+     */
+    @Test
+    public void testTls1RequestFactory() throws IOException, NoSuchFieldException, IllegalAccessException {
+        System.setProperty(TLSVER, "TLSv1");
+        Object protocolVersion = makeTestHttpsRequest();
+
+        Assert.assertEquals("TLSv1", protocolVersion.toString());
+    }
+
+    /**
+     * Test making HTTP call and using default TLS version
+     * @throws IOException
+     */
+    @Test
+    public void testTls12RequestFactory() throws IOException, NoSuchFieldException, IllegalAccessException {
+        System.setProperty(TLSVER, "TLSv1.2");
+
+        if(javaVersion == 1.6) {
+            //java 6 does not support TLSv1.2
+            exception.expect(PayPalAccessException.class);
+        }
+
+        Object protocolVersion = makeTestHttpsRequest();
+        Assert.assertEquals("TLSv1.2", protocolVersion.toString());
+    }
+
+
+    /****** HELPER METHODS ****/
+
+    /**
+     * Makes a test request over https
+     * @return Protocol version used for connection. eg. TLSv1.2
+     * @throws IOException
+     * @throws NoSuchFieldException
+     * @throws IllegalAccessException
+     */
+    private String makeTestHttpsRequest() throws IOException, NoSuchFieldException, IllegalAccessException {
+        HttpComponentsClientHttpRequestFactory rf = HttpClientFactory.getRequestFactory(true);
+        Assert.assertNotNull(rf);
+        URI uri = URI.create("https://google.com");
+        ClientHttpRequest request = rf.createRequest(uri, HttpMethod.GET);
+        ClientHttpResponse response = request.execute();
+        Assert.assertNotNull(response);
+
+        // extract the tls version
+        Proxy responseProxy = (Proxy) getPropertyFromObject(response, "httpResponse");
+        InvocationHandler responseHandler = Proxy.getInvocationHandler(responseProxy);
+        PoolEntry poolEntry = (PoolEntry) getPropertyFromObject(responseHandler, "original.entity.managedConn.poolEntry");
+
+        Object protocolVersion = getPropertyFromObject(poolEntry.getConnection(), "socket.protocolVersion");
+        return protocolVersion.toString();
+    }
+
+    /**
+     * Returns the property value for the object.  You can pass a property chain like p1.p2.p3 and p3 value will be returned
+     * @param obj object that contains the property
+     * @param propChain You can pass a property chain like p1.p2.p3 and p3 value will be returned
+     * @return
+     * @throws NoSuchFieldException
+     * @throws IllegalAccessException
+     */
+    private static Object getPropertyFromObject(Object obj, String propChain) throws NoSuchFieldException, IllegalAccessException {
+        String[] props = propChain.split("\\.");
+        Object currObj = obj;
+        Field field;
+
+        for (String prop : props) {
+            field = currObj.getClass().getDeclaredField(prop);
+            field.setAccessible(true);
+            currObj = field.get(currObj);
+        }
+
+        return currObj;
     }
 }
