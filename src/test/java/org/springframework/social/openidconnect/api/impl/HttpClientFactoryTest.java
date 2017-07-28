@@ -4,6 +4,7 @@ import junit.framework.Assert;
 
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.pool.PoolEntry;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -27,12 +28,13 @@ public class HttpClientFactoryTest {
     @Rule
     public final ExpectedException exception = ExpectedException.none();
 
-    private static final String TLSVER = "jdk.tls.client.protocols";
+    //private static final String TLSVER = "jdk.tls.client.protocols";
+    private static final String TLSVER = "tlsProtocol";
 
     private static final double javaVersion = Double.parseDouble(System.getProperty("java.specification.version"));
 
-    @Before
-    public void beforeEach() {
+    @After
+    public void afterEach() {
         System.clearProperty(TLSVER);
     }
 
@@ -61,20 +63,26 @@ public class HttpClientFactoryTest {
     }
 
     /**
-     * Test variations of passing TLS version
+     * Test variations of passing un-versioned TLS
      */
     @Test
     public void testSetTlsVersionSuccess() {
         System.setProperty(TLSVER, "TLS");
         ClientConnectionManager cm = HttpClientFactory.getPooledConnectionManager(true);
         Assert.assertEquals("https:443", cm.getSchemeRegistry().get("https").toString());
+    }
 
+    /**
+     * Test variations of passing TLS 1.2 version
+     */
+    @Test
+    public void testSetTls12VersionSuccess() {
         System.setProperty(TLSVER, "TLSv1.2");
 
         if(javaVersion == 1.6) {
             exception.expect(PayPalAccessException.class);
         }
-        cm = HttpClientFactory.getPooledConnectionManager(true);
+        ClientConnectionManager cm = HttpClientFactory.getPooledConnectionManager(true);
         Assert.assertEquals("https:443", cm.getSchemeRegistry().get("https").toString());
     }
 
@@ -89,14 +97,14 @@ public class HttpClientFactoryTest {
     }
 
     /**
-     * Test making HTTP call and using default TLS version
+     * Test making HTTP call without passing TLS version
      * @throws IOException
      */
     @Test
     public void testDefaultRequestFactory() throws IOException, NoSuchFieldException, IllegalAccessException {
         Object protocolVersion = makeTestHttpsRequest();
 
-        if(javaVersion == 1.6) {
+        if(javaVersion <= 1.6) {
             Assert.assertEquals("TLSv1", protocolVersion.toString());
         } else {
             //java 1.7 defaults to TLSv1 but we want 1.2
@@ -105,7 +113,23 @@ public class HttpClientFactoryTest {
     }
 
     /**
-     * Test making HTTP call and using TLSv1 overrides
+     * Test making HTTP call and using TLS override
+     * @throws IOException
+     */
+    @Test
+    public void testTlsRequestFactory() throws IOException, NoSuchFieldException, IllegalAccessException {
+        System.setProperty(TLSVER, "TLS");
+        Object protocolVersion = makeTestHttpsRequest();
+
+        if(javaVersion <= 1.7) {
+            Assert.assertEquals("TLSv1", protocolVersion.toString());
+        } else {
+            Assert.assertEquals("TLSv1.2", protocolVersion.toString());
+        }
+    }
+
+    /**
+     * Test making HTTP call and using TLSv1 override
      * @throws IOException
      */
     @Test
@@ -117,14 +141,14 @@ public class HttpClientFactoryTest {
     }
 
     /**
-     * Test making HTTP call and using default TLS version
+     * Test making HTTP call and using TLSv1.2 version
      * @throws IOException
      */
     @Test
     public void testTls12RequestFactory() throws IOException, NoSuchFieldException, IllegalAccessException {
         System.setProperty(TLSVER, "TLSv1.2");
 
-        if(javaVersion == 1.6) {
+        if(javaVersion <= 1.6) {
             //java 6 does not support TLSv1.2
             exception.expect(PayPalAccessException.class);
         }
