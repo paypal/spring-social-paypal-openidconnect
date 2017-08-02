@@ -122,11 +122,12 @@ public final class HttpClientFactory {
      */
     public static String getTlsVersion() {
         // don't use "jdk.tls.client.protocols" as it was causing unexpected exception during unit testing
-        String tlsVer = System.getProperty("tlsProtocol");
+        String tlsVer = System.getProperty("tls.protocol");
 
         if(StringUtils.isEmpty(tlsVer)) {
             double javaVersion = Double.parseDouble(System.getProperty("java.specification.version"));
             if(javaVersion == 1.7) {
+                logger.info("defaulting to TLSv1.2 on jdk 1.7");
                 // java 7 defaults to version 1 but supports 1.2
                 tlsVer = "TLSv1.2";
             } else {

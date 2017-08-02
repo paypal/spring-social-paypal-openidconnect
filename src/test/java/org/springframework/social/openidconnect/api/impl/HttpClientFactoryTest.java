@@ -29,7 +29,7 @@ public class HttpClientFactoryTest {
     public final ExpectedException exception = ExpectedException.none();
 
     //private static final String TLSVER = "jdk.tls.client.protocols";
-    private static final String TLSVER = "tlsProtocol";
+    private static final String TLSVER = "tls.protocol";
 
     private static final double javaVersion = Double.parseDouble(System.getProperty("java.specification.version"));
 
@@ -38,24 +38,12 @@ public class HttpClientFactoryTest {
         System.clearProperty(TLSVER);
     }
 
-    /**
-     * Test reading/writing TLS version
-     */
-    @Test
-    public void testJdkTlsProperty() {
-        String tlsProtocols = System.getProperty(TLSVER);
-        Assert.assertNull(tlsProtocols);
-
-        System.setProperty(TLSVER, "TLSv1.2");
-        tlsProtocols = System.getProperty(TLSVER);
-        Assert.assertEquals("TLSv1.2", tlsProtocols);
-    }
 
     /**
-     * Test variations not passing TLS version
+     * Test NOT passing TLS version and relying on default
      */
     @Test
-    public void testNoTlsVersionSuccess() {
+    public void testDefaultTlsVersionSuccess() {
         ClientConnectionManager cm = HttpClientFactory.getPooledConnectionManager(true);
         Assert.assertEquals("https:443", cm.getSchemeRegistry().get("https").toString());
         cm = HttpClientFactory.getPooledConnectionManager(false);
@@ -79,7 +67,7 @@ public class HttpClientFactoryTest {
     public void testSetTls12VersionSuccess() {
         System.setProperty(TLSVER, "TLSv1.2");
 
-        if(javaVersion == 1.6) {
+        if(javaVersion <= 1.6) {
             exception.expect(PayPalAccessException.class);
         }
         ClientConnectionManager cm = HttpClientFactory.getPooledConnectionManager(true);
