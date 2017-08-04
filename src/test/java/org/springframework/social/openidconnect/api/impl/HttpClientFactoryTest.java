@@ -44,6 +44,9 @@ public class HttpClientFactoryTest {
      */
     @Test
     public void testDefaultTlsVersionSuccess() {
+        if(javaVersion <= 1.6) {
+            exception.expect(PayPalAccessException.class);
+        }
         ClientConnectionManager cm = HttpClientFactory.getPooledConnectionManager(true);
         Assert.assertEquals("https:443", cm.getSchemeRegistry().get("https").toString());
         cm = HttpClientFactory.getPooledConnectionManager(false);
@@ -90,14 +93,12 @@ public class HttpClientFactoryTest {
      */
     @Test
     public void testDefaultRequestFactory() throws IOException, NoSuchFieldException, IllegalAccessException {
-        Object protocolVersion = makeTestHttpsRequest();
-
         if(javaVersion <= 1.6) {
-            Assert.assertEquals("TLSv1", protocolVersion.toString());
-        } else {
-            //java 1.7 defaults to TLSv1 but we want 1.2
-            Assert.assertEquals("TLSv1.2", protocolVersion.toString());
+            exception.expect(PayPalAccessException.class);
         }
+
+        Object protocolVersion = makeTestHttpsRequest();
+        Assert.assertEquals("TLSv1.2", protocolVersion.toString());
     }
 
     /**

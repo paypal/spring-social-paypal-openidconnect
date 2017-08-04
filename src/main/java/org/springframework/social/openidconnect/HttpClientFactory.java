@@ -117,24 +117,17 @@ public final class HttpClientFactory {
     }
 
     /**
-     * Gets the TLS version from jdk parameter.  Defaults to version 1.2 for JDK 1.7 if not provided
+     * Gets the TLS version from jdk parameter.  Defaults to version 1.2 if not provided
      * @return
      */
     public static String getTlsVersion() {
-        // don't use "jdk.tls.client.protocols" as it was causing unexpected exception during unit testing
+        // don't use "jdk.tls.client.protocols" as it was causing unexpected exception during unit testing on jdk 1.8
         String tlsVer = System.getProperty("tls.protocol");
 
         if(StringUtils.isEmpty(tlsVer)) {
-            double javaVersion = Double.parseDouble(System.getProperty("java.specification.version"));
-            if(javaVersion == 1.7) {
-                logger.info("defaulting to TLSv1.2 on jdk 1.7");
-                // java 7 defaults to version 1 but supports 1.2
-                tlsVer = "TLSv1.2";
-            } else {
-                // use whatever the default jdk version is.
-                // JDK < 1.7 doesn't support 1.2, and newer JDKs use 1.2 or higher by default
-                tlsVer = "TLS";
-            }
+            logger.info("defaulting to TLSv1.2 on jdk " + System.getProperty("java.specification.version"));
+            // note: java 7 defaults to version 1 but supports 1.2
+            tlsVer = "TLSv1.2";
         }
 
         return tlsVer;
