@@ -1,5 +1,6 @@
 package org.springframework.social.openidconnect;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.HttpClient;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.scheme.PlainSocketFactory;
@@ -69,7 +70,7 @@ public final class HttpClientFactory {
     public static ClientConnectionManager getPooledConnectionManager(boolean isStrict){
         try {
             Scheme http = new Scheme("http", 80, PlainSocketFactory.getSocketFactory());
-            SSLContext sslcontext = SSLContext.getInstance("TLS");
+            SSLContext sslcontext = SSLContext.getInstance(getTlsVersion());
             sslcontext.init(null, null, null);
 
             SSLSocketFactory sf = new SSLSocketFactory(sslcontext, getVerifier(isStrict));
@@ -95,6 +96,7 @@ public final class HttpClientFactory {
         }
     }
 
+
     /**
      * Gets HostName verifier
      * @param isStrict - Flag which determines Host name verifier
@@ -114,4 +116,20 @@ public final class HttpClientFactory {
         return SSLSocketFactory.STRICT_HOSTNAME_VERIFIER;
     }
 
+    /**
+     * Gets the TLS version from jdk parameter.  Defaults to version 1.2 if not provided
+     * @return
+     */
+    public static String getTlsVersion() {
+        // don't use "jdk.tls.client.protocols" as it was causing unexpected exception during unit testing on jdk 1.8
+        String tlsVer = System.getProperty("tls.protocol");
+
+        if(StringUtils.isEmpty(tlsVer)) {
+            logger.info("defaulting to TLSv1.2 on jdk " + System.getProperty("java.specification.version"));
+            // note: java 7 defaults to version 1 but supports 1.2
+            tlsVer = "TLSv1.2";
+        }
+
+        return tlsVer;
+    }
 }

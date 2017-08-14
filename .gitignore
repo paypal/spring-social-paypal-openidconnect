@@ -13,3 +13,4 @@ target
 *.log*
 *atlassian*
 spring-social-openidconnect*.iml
+spring-social-paypal.iml
