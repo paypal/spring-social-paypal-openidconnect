@@ -10,9 +10,9 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<org.springframework.social-version>1.1.0.RELEASE</org.springframework.social-version>
-		<org.springframework.security.version>3.2.0.RELEASE</org.springframework.security.version>
-		<org.springframework.version>4.0.3.RELEASE</org.springframework.version>
+		<org.springframework.social-version>1.1.4.RELEASE</org.springframework.social-version>
+		<org.springframework.security.version>4.2.3.RELEASE</org.springframework.security.version>
+		<org.springframework.version>4.3.10.RELEASE</org.springframework.version>
 		<jackson.version>2.3.1</jackson.version>
 	</properties>
 

@@ -3,6 +3,8 @@ package org.springframework.social.openidconnect.api.impl;
 import junit.framework.Assert;
 
 import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.conn.HttpClientConnectionManager;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.pool.PoolEntry;
 import org.junit.After;
 import org.junit.Before;
@@ -17,8 +19,11 @@ import org.springframework.social.openidconnect.PayPalAccessException;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Proxy;
 import java.net.URI;
+import java.security.NoSuchAlgorithmException;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 /**
@@ -43,58 +48,35 @@ public class HttpClientFactoryTest {
      * Test NOT passing TLS version and relying on default
      */
     @Test
-    public void testDefaultTlsVersionSuccess() {
-        if(javaVersion <= 1.6) {
-            exception.expect(PayPalAccessException.class);
-        }
-        ClientConnectionManager cm = HttpClientFactory.getPooledConnectionManager(true);
-        Assert.assertEquals("https:443", cm.getSchemeRegistry().get("https").toString());
-        cm = HttpClientFactory.getPooledConnectionManager(false);
-        Assert.assertEquals("https:443", cm.getSchemeRegistry().get("https").toString());
-    }
-
-    /**
-     * Test variations of passing un-versioned TLS
-     */
-    @Test
-    public void testSetTlsVersionSuccess() {
-        System.setProperty(TLSVER, "TLS");
-        ClientConnectionManager cm = HttpClientFactory.getPooledConnectionManager(true);
-        Assert.assertEquals("https:443", cm.getSchemeRegistry().get("https").toString());
+    public void testDefaultTlsVersionSuccess() throws NoSuchFieldException, IllegalAccessException {
+        PoolingHttpClientConnectionManager cm = (PoolingHttpClientConnectionManager) (PoolingHttpClientConnectionManager) HttpClientFactory.getPooledConnectionManager(true);
+        ConcurrentHashMap hm = (ConcurrentHashMap) getPropertyFromObject(cm, "connectionOperator.socketFactoryRegistry.map");
+        Assert.assertTrue(hm.containsKey("https"));
+        cm = (PoolingHttpClientConnectionManager) HttpClientFactory.getPooledConnectionManager(false);
+        hm = (ConcurrentHashMap) getPropertyFromObject(cm, "connectionOperator.socketFactoryRegistry.map");
+        Assert.assertTrue(hm.containsKey("https"));
     }
 
     /**
      * Test variations of passing TLS 1.2 version
      */
     @Test
-    public void testSetTls12VersionSuccess() {
+    public void testSetTls12VersionSuccess() throws NoSuchFieldException, IllegalAccessException {
         System.setProperty(TLSVER, "TLSv1.2");
-
-        if(javaVersion <= 1.6) {
-            exception.expect(PayPalAccessException.class);
-        }
-        ClientConnectionManager cm = HttpClientFactory.getPooledConnectionManager(true);
-        Assert.assertEquals("https:443", cm.getSchemeRegistry().get("https").toString());
+        PoolingHttpClientConnectionManager cm = (PoolingHttpClientConnectionManager)HttpClientFactory.getPooledConnectionManager(true);
+        ConcurrentHashMap hm = (ConcurrentHashMap) getPropertyFromObject(cm, "connectionOperator.socketFactoryRegistry.map");
+        Assert.assertTrue(hm.containsKey("https"));
     }
 
-    /**
-     * Test passing bad TLS version
-     */
-    @Test
-    public void testTlsVersionException() {
-        System.setProperty(TLSVER, "TLSvErrorTest");
-        exception.expect(PayPalAccessException.class);
-        ClientConnectionManager cm = HttpClientFactory.getPooledConnectionManager(true);
-    }
 
     /**
      * Test making HTTP call without passing TLS version
      * @throws IOException
      */
     @Test
-    public void testDefaultRequestFactory() throws IOException, NoSuchFieldException, IllegalAccessException {
+    public void testDefaultRequestFactory() throws IOException, NoSuchFieldException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         if(javaVersion <= 1.6) {
-            exception.expect(PayPalAccessException.class);
+            exception.expect(IllegalArgumentException.class);
         }
 
         Object protocolVersion = makeTestHttpsRequest();
@@ -102,27 +84,11 @@ public class HttpClientFactoryTest {
     }
 
     /**
-     * Test making HTTP call and using TLS override
-     * @throws IOException
-     */
-    @Test
-    public void testTlsRequestFactory() throws IOException, NoSuchFieldException, IllegalAccessException {
-        System.setProperty(TLSVER, "TLS");
-        Object protocolVersion = makeTestHttpsRequest();
-
-        if(javaVersion <= 1.7) {
-            Assert.assertEquals("TLSv1", protocolVersion.toString());
-        } else {
-            Assert.assertEquals("TLSv1.2", protocolVersion.toString());
-        }
-    }
-
-    /**
      * Test making HTTP call and using TLSv1 override
      * @throws IOException
      */
     @Test
-    public void testTls1RequestFactory() throws IOException, NoSuchFieldException, IllegalAccessException {
+    public void testTls1RequestFactory() throws IOException, NoSuchFieldException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         System.setProperty(TLSVER, "TLSv1");
         Object protocolVersion = makeTestHttpsRequest();
 
@@ -134,18 +100,33 @@ public class HttpClientFactoryTest {
      * @throws IOException
      */
     @Test
-    public void testTls12RequestFactory() throws IOException, NoSuchFieldException, IllegalAccessException {
+    public void testTls12RequestFactory() throws IOException, NoSuchFieldException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         System.setProperty(TLSVER, "TLSv1.2");
 
         if(javaVersion <= 1.6) {
             //java 6 does not support TLSv1.2
-            exception.expect(PayPalAccessException.class);
+            exception.expect(IllegalArgumentException.class);
         }
 
         Object protocolVersion = makeTestHttpsRequest();
         Assert.assertEquals("TLSv1.2", protocolVersion.toString());
     }
 
+    /**
+     * Test making a bad a request with bad TLS version
+     * @throws IOException
+     * @throws NoSuchFieldException
+     * @throws IllegalAccessException
+     * @throws NoSuchMethodException
+     * @throws InvocationTargetException
+     */
+    @Test
+    public void testBadTlsRequestFactory() throws IOException, NoSuchFieldException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+        System.setProperty(TLSVER, "TLSError");
+        exception.expect(IllegalArgumentException.class);
+        Object protocolVersion = makeTestHttpsRequest();
+        Assert.assertEquals("TLSv1.2", protocolVersion.toString());
+    }
 
     /****** HELPER METHODS ****/
 
@@ -156,7 +137,7 @@ public class HttpClientFactoryTest {
      * @throws NoSuchFieldException
      * @throws IllegalAccessException
      */
-    private String makeTestHttpsRequest() throws IOException, NoSuchFieldException, IllegalAccessException {
+    private String makeTestHttpsRequest() throws IOException, NoSuchFieldException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         HttpComponentsClientHttpRequestFactory rf = HttpClientFactory.getRequestFactory(true);
         Assert.assertNotNull(rf);
         URI uri = URI.create("https://google.com");
@@ -167,10 +148,17 @@ public class HttpClientFactoryTest {
         // extract the tls version
         Proxy responseProxy = (Proxy) getPropertyFromObject(response, "httpResponse");
         InvocationHandler responseHandler = Proxy.getInvocationHandler(responseProxy);
-        PoolEntry poolEntry = (PoolEntry) getPropertyFromObject(responseHandler, "original.entity.managedConn.poolEntry");
-
-        Object protocolVersion = getPropertyFromObject(poolEntry.getConnection(), "socket.protocolVersion");
+        Proxy managedConnProxy = (Proxy) getPropertyFromObject(responseHandler, "connHolder.managedConn");
+        Object poolProxy = Proxy.getInvocationHandler(managedConnProxy);
+        PoolEntry poolEntry = (PoolEntry) getPropertyFromObject(poolProxy, "poolEntry");
+        Object connection = poolEntry.getConnection();
+        Object sock = invokeMethod(connection, "getSocket");
+        Object protocolVersion = getPropertyFromObject(sock, "protocolVersion");
         return protocolVersion.toString();
+    }
+
+    private Object invokeMethod(Object obj, String method) throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+        return obj.getClass().getMethod(method).invoke(obj);
     }
 
     /**

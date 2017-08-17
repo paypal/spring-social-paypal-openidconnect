@@ -2,30 +2,22 @@ package org.springframework.social.openidconnect;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.HttpClient;
-import org.apache.http.conn.ClientConnectionManager;
-import org.apache.http.conn.scheme.PlainSocketFactory;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.config.Registry;
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.HttpClientConnectionManager;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.socket.PlainConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLContexts;
 import org.apache.http.conn.ssl.X509HostnameVerifier;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.PoolingClientConnectionManager;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.log4j.Logger;
-import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.http.converter.FormHttpMessageConverter;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
-import org.springframework.social.ApiException;
-import org.springframework.social.InternalServerErrorException;
-import org.springframework.social.ServerException;
-import org.springframework.social.support.ClientHttpRequestFactorySelector;
-import org.springframework.web.client.DefaultResponseErrorHandler;
-import org.springframework.web.client.RestTemplate;
+import org.apache.http.impl.client.HttpClientBuilder;
 
 import javax.net.ssl.SSLContext;
-import java.util.ArrayList;
-import java.util.List;
+
+import static org.apache.http.conn.ssl.SSLConnectionSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER;
 
 /**
  * Factory which gives more fine grained control over creation of <code>RestTemplate</code> and allows configuration such as connection time out,
@@ -54,7 +46,8 @@ public final class HttpClientFactory {
         HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
         factory.setConnectTimeout(5000);
         factory.setReadTimeout(5000);
-        HttpClient httpClient = new DefaultHttpClient(getPooledConnectionManager(isStrict));
+
+        HttpClient httpClient = HttpClientBuilder.create().setConnectionManager(getPooledConnectionManager(isStrict)).build();
         factory.setHttpClient(httpClient);
         if(logger.isDebugEnabled()){
             logger.debug("Factory is set to use connection time out and read time out");
@@ -67,21 +60,28 @@ public final class HttpClientFactory {
      * @return - Client connection manager
      * @see org.apache.http.conn.ssl.X509HostnameVerifier
      */
-    public static ClientConnectionManager getPooledConnectionManager(boolean isStrict){
+    public static HttpClientConnectionManager getPooledConnectionManager(boolean isStrict){
         try {
-            Scheme http = new Scheme("http", 80, PlainSocketFactory.getSocketFactory());
-            SSLContext sslcontext = SSLContext.getInstance(getTlsVersion());
-            sslcontext.init(null, null, null);
+            HttpClientBuilder builder = HttpClientBuilder.create();
 
-            SSLSocketFactory sf = new SSLSocketFactory(sslcontext, getVerifier(isStrict));
+            SSLContext sslContext = SSLContexts.custom()
+                    .useTLS()
+                    .build();
 
-            Scheme https = new Scheme("https", 443, sf);
+            SSLConnectionSocketFactory sslConnectionFactory = new SSLConnectionSocketFactory(
+                    sslContext,
+                    new String[]{getTlsVersion()},
+                    null,
+                    SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+            builder.setSSLSocketFactory(sslConnectionFactory);
 
-            SchemeRegistry schemeRegistry = new SchemeRegistry();
-            schemeRegistry.register(http);
-            schemeRegistry.register(https);
+            Registry<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory>create()
+                    .register("http", PlainConnectionSocketFactory.getSocketFactory())
+                    .register("https", sslConnectionFactory)
+                    .build();
 
-            PoolingClientConnectionManager cm = new PoolingClientConnectionManager(schemeRegistry);
+            PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager(registry);
+
             // Increase max total connection to 200
             cm.setMaxTotal(200);
             // Increase default max connection per route to 20
@@ -101,19 +101,19 @@ public final class HttpClientFactory {
      * Gets HostName verifier
      * @param isStrict - Flag which determines Host name verifier
      * @return - If false uses  ALLOW_ALL_HOSTNAME_VERIFIER
-     * @see  SSLSocketFactory
+     * @see  SSLConnectionSocketFactory
      */
     private static X509HostnameVerifier getVerifier(boolean isStrict){
         if(!isStrict) {
             if(logger.isInfoEnabled()){
                 logger.info("Using Allow All HostName verifier. isStrict = " + isStrict);
             }
-            return SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER;
+            return SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER;
         }
         if(logger.isInfoEnabled()){
             logger.info("Using Strict HostName verifier. isStrict = " + isStrict);
         }
-        return SSLSocketFactory.STRICT_HOSTNAME_VERIFIER;
+        return SSLConnectionSocketFactory.STRICT_HOSTNAME_VERIFIER;
     }
 
     /**

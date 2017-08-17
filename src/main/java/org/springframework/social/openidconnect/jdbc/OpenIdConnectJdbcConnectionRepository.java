@@ -157,7 +157,8 @@ public class OpenIdConnectJdbcConnectionRepository implements ConnectionReposito
     public void addConnection(Connection<?> connection) {
         try {
             OpenIdConnectionData data = (OpenIdConnectionData) connection.createData();
-            int rank = jdbcTemplate.queryForInt("select coalesce(max(rank) + 1, 1) as rank from " + tablePrefix + "UserConnection where userId = ? and providerId = ?", userId, data.getProviderId());
+            String query = "select coalesce(max(rank) + 1, 1) as rank from " + tablePrefix + "UserConnection where userId = ? and providerId = ?";
+            int rank = jdbcTemplate.queryForObject(query, Integer.class, userId, data.getProviderId());
             jdbcTemplate.update("insert into " + tablePrefix + "UserConnection (userId, providerId, providerUserId, rank, displayName, profileUrl, imageUrl, accessToken, idToken, secret, refreshToken, expireTime) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                     userId, data.getProviderId(), data.getProviderUserId(), rank, data.getDisplayName(), data.getProfileUrl(), data.getImageUrl(), encrypt(data.getAccessToken()), encrypt(data.getIdToken()), encrypt(data.getSecret()), encrypt(data.getRefreshToken()), data.getExpireTime());
         } catch (DuplicateKeyException e) {
