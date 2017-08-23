@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.springframework.social.openidconnect</groupId>
 	<artifactId>spring-social-paypal</artifactId>
-	<version>1.1.0-SNAPSHOT</version>
+	<version>1.2.0-SNAPSHOT</version>
 	<name>Spring Social PayPal for OpenId Connect</name>
 	<description>Extends Spring Social core API to add support for openid connect specification</description>
 	<packaging>jar</packaging>
